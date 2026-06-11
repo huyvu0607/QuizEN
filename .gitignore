@@ -1,0 +1,139 @@
+# ============================================================
+#  Lumina – .gitignore
+#  Android (Kotlin) + Spring Boot
+# ============================================================
+
+
+# ─────────────────────────────────────────
+#  ANDROID / KOTLIN
+# ─────────────────────────────────────────
+*.iml
+.gradle/
+local.properties
+.idea/
+.DS_Store
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+.kotlin/
+
+# Keystore – KHÔNG BAO GIỜ commit
+*.jks
+*.keystore
+keystore.properties
+
+# Firebase config
+google-services.json
+GoogleService-Info.plist
+
+
+# ─────────────────────────────────────────
+#  SPRING BOOT / JAVA / GRADLE
+# ─────────────────────────────────────────
+target/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Gradle cache
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# Eclipse
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+logs/
+spring.log
+
+# Cấu hình môi trường nhạy cảm
+application-prod.yml
+application-prod.properties
+application-local.yml
+application-local.properties
+application-secret.yml
+application-secret.properties
+**/src/main/resources/application-prod*
+**/src/main/resources/application-local*
+**/src/main/resources/application-secret*
+
+
+# ─────────────────────────────────────────
+#  BIẾN MÔI TRƯỜNG & BÍ MẬT
+# ─────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+secrets/
+api-keys.properties
+api-keys.yml
+
+
+# ─────────────────────────────────────────
+#  DATABASE & BACKUP
+# ─────────────────────────────────────────
+*.sql.bak
+*.dump
+*.sqlite
+*.db
+db-backups/
+
+
+# ─────────────────────────────────────────
+#  DOCKER
+# ─────────────────────────────────────────
+docker-compose.override.yml
+
+
+# ─────────────────────────────────────────
+#  CI/CD & TESTING
+# ─────────────────────────────────────────
+coverage/
+test-results/
+jacoco.exec
+/report/
+
+
+# ─────────────────────────────────────────
+#  HỆ ĐIỀU HÀNH
+# ─────────────────────────────────────────
+# macOS
+.DS_Store
+.AppleDouble
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
