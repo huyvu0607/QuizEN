@@ -1,6 +1,6 @@
 package com.lumina.app.data.model
 
-data class Unit(
+data class StudyUnit(
     val id: Long,
     val courseId: Long,
     val title: String,

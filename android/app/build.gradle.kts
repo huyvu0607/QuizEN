@@ -1,18 +1,19 @@
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.kotlinAndroid)
+    alias(libs.plugins.kotlinKapt)
 }
 
 android {
     namespace = "com.lumina.app"
-    compileSdk = 37
+    compileSdk = 35 // Standard API for now, 37 was suspicious
 
     defaultConfig {
         applicationId = "com.lumina.app"
         minSdk = 26
-        targetSdk = 37
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -29,15 +30,31 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    kotlinOptions {
+        jvmTarget = "11"
+    }
 }
 
 dependencies {
-    implementation(libs.androidx.activity.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.constraintlayout)
     implementation(libs.material)
+
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    kapt(libs.androidx.room.compiler)
+
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+
+    implementation(libs.kotlinx.coroutines.android)
+
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }
