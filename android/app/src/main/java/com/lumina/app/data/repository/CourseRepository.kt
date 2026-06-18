@@ -31,18 +31,18 @@ class CourseRepository(
         courseDao.deleteCourse(course.toEntity())
 
     // ── Unit ──
-    fun getUnitsByCourse(courseId: Long): Flow<List<Unit>> =
+    fun getUnitsByCourse(courseId: Long): Flow<List<StudyUnit>> =
         unitDao.getUnitsByCourse(courseId).map { list ->
             list.map { it.toModel() }
         }
 
-    suspend fun insertUnit(unit: Unit) =
+    suspend fun insertUnit(unit: StudyUnit) =
         unitDao.insertUnit(unit.toEntity())
 
-    suspend fun updateUnit(unit: Unit) =
+    suspend fun updateUnit(unit: StudyUnit) =
         unitDao.updateUnit(unit.toEntity())
 
-    suspend fun deleteUnit(unit: Unit) =
+    suspend fun deleteUnit(unit: StudyUnit) =
         unitDao.deleteUnit(unit.toEntity())
 
     // ── Lesson ──

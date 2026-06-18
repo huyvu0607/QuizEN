@@ -1,5 +1,5 @@
 [versions]
-agp = "8.7.3"
+agp = "9.1.0"
 kotlin = "2.0.21"
 coreKtx = "1.19.0"
 junit = "4.13.2"
@@ -9,10 +9,11 @@ appcompat = "1.7.1"
 material = "1.14.0"
 activityKtx = "1.13.0"
 constraintlayout = "2.2.1"
-room = "2.6.1"
+room = "2.8.4"
 lifecycle = "2.8.7"
 coroutines = "1.8.1"
 retrofit = "2.11.0"
+navigation = "2.8.5"
 
 [libraries]
 # Existing
@@ -33,6 +34,10 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 # Lifecycle
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
+
+# Navigation
+navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigation" }
+navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigation" }
 
 # Coroutines
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }

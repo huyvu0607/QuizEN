@@ -17,11 +17,11 @@ interface QuizDao {
 
     // Lấy từ yếu nhất — những từ hay sai nhất
     @Query("""
-        SELECT vocabulary_id, COUNT(*) as wrong_count 
+        SELECT vocabulary_id
         FROM quiz_answers 
         WHERE is_correct = 0 
         GROUP BY vocabulary_id 
-        ORDER BY wrong_count DESC 
+        ORDER BY COUNT(*) DESC
         LIMIT :limit
     """)
     suspend fun getWeakestVocabularyIds(limit: Int = 20): List<Long>

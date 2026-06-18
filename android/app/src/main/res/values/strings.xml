@@ -1,3 +1,16 @@
 <resources>
-    <string name="app_name">Lumina</string>
+    <string name="app_name">VocabQuiz</string>
+    <string name="login">Đăng nhập</string>
+    <string name="register">Đăng ký</string>
+    <string name="email">Email</string>
+    <string name="password">Mật khẩu</string>
+    <string name="forgot_password">Quên mật khẩu?</string>
+    <string name="or_continue_with">hoặc tiếp tục với</string>
+    <string name="google">Google</string>
+    <string name="continue_as_guest">Tiếp tục không cần tài khoản</string>
+    <string name="display_name">Tên hiển thị</string>
+    <string name="select_level">Chọn trình độ</string>
+    <string name="study_goals">Mục tiêu học tập</string>
+    <string name="create_account">Tạo tài khoản</string>
+    <string name="slogan">Học từ vựng thông minh</string>
 </resources>

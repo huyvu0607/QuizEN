@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.lumina.app"
-    compileSdk = 35 // Standard API for now, 37 was suspicious
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.lumina.app"
@@ -33,6 +33,10 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
@@ -48,6 +52,9 @@ dependencies {
 
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
+
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
 
     implementation(libs.kotlinx.coroutines.android)
 
