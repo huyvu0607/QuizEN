@@ -1,5 +1,6 @@
 <resources>
-    <string name="app_name">VocabQuiz</string>
+    <string name="app_name">Lumina</string>
+    <string name="default_web_client_id">70985232276-chlqc5jpkoeg0ddvla44kgldniod2r36.apps.googleusercontent.com</string>
     <string name="login">Đăng nhập</string>
     <string name="register">Đăng ký</string>
     <string name="email">Email</string>

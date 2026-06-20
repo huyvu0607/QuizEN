@@ -10,10 +10,12 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.lumina.app.MainActivity
+import com.lumina.app.data.repository.AuthRepository
 import com.lumina.app.data.repository.UserRepository
 import com.lumina.app.data.source.local.AppDatabase
 import com.lumina.app.databinding.FragmentRegisterBinding
 import com.lumina.app.viewmodel.ViewModelFactory
+import com.google.android.material.chip.Chip
 
 class RegisterFragment : Fragment() {
     private var _binding: FragmentRegisterBinding? = null
@@ -32,10 +34,11 @@ class RegisterFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
+
         val database = AppDatabase.getInstance(requireContext())
-        val repository = UserRepository(database.userDao())
-        val factory = ViewModelFactory(repository)
+        val userRepository = UserRepository(database.userDao())
+        val authRepository = AuthRepository(requireContext().applicationContext)
+        val factory = ViewModelFactory(userRepository, authRepository)
         viewModel = ViewModelProvider(requireActivity(), factory)[AuthViewModel::class.java]
 
         setupLevelDropdown()
@@ -51,14 +54,18 @@ class RegisterFragment : Fragment() {
 
     private fun setupListeners() {
         binding.btnRegister.setOnClickListener {
-            val name = binding.tilName.editText?.text.toString()
-            val email = binding.tilEmail.editText?.text.toString()
+            val name = binding.tilName.editText?.text.toString().trim()
+            val email = binding.tilEmail.editText?.text.toString().trim()
             val pass = binding.tilPassword.editText?.text.toString()
-            val level = binding.actvLevel.text.toString()
-            
-            // For now, take the first checked chip or a default
-            val goal = "IELTS" 
-            
+            val level = binding.actvLevel.text.toString().ifBlank { "A1" }
+
+            val checkedChipId = binding.cgGoals.checkedChipId
+            val goal = if (checkedChipId != View.NO_ID) {
+                binding.cgGoals.findViewById<Chip>(checkedChipId)?.text?.toString() ?: "Giao tiếp"
+            } else {
+                "Giao tiếp"
+            }
+
             viewModel.register(name, email, pass, level, goal)
         }
     }

@@ -4,8 +4,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lumina.app.data.model.EnglishLevel
 import com.lumina.app.data.model.User
+import com.lumina.app.data.repository.AuthRepository
 import com.lumina.app.data.repository.UserRepository
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import kotlinx.coroutines.launch
 
 sealed class AuthState {
@@ -15,7 +21,10 @@ sealed class AuthState {
     data class Error(val message: String) : AuthState()
 }
 
-class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
+class AuthViewModel(
+    private val authRepository: AuthRepository,
+    private val userRepository: UserRepository
+) : ViewModel() {
 
     private val _authState = MutableLiveData<AuthState>(AuthState.Idle)
     val authState: LiveData<AuthState> = _authState
@@ -25,12 +34,20 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
             _authState.value = AuthState.Error("Vui lòng điền đầy đủ thông tin")
             return
         }
-        
+
         viewModelScope.launch {
             _authState.value = AuthState.Loading
-            // TODO: Call Repository for Remote Login
-            // For now, simulate success
-            _authState.value = AuthState.Error("Chức năng đăng nhập đang được phát triển")
+            try {
+                val firebaseUser = authRepository.loginWithEmail(email, pass)
+                val localUser = userRepository.upsertFromAuth(
+                    email = firebaseUser.email ?: email,
+                    displayName = firebaseUser.displayName ?: email.substringBefore("@"),
+                    avatarUrl = firebaseUser.photoUrl?.toString()
+                )
+                _authState.value = AuthState.Success(localUser)
+            } catch (e: Exception) {
+                _authState.value = AuthState.Error(mapAuthError(e))
+            }
         }
     }
 
@@ -42,8 +59,39 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
 
         viewModelScope.launch {
             _authState.value = AuthState.Loading
-            // TODO: Call Repository for Registration
-            _authState.value = AuthState.Error("Chức năng đăng ký đang được phát triển")
+            try {
+                val firebaseUser = authRepository.registerWithEmail(email, pass)
+                val englishLevel = runCatching { EnglishLevel.valueOf(level) }
+                    .getOrDefault(EnglishLevel.A1)
+                val localUser = userRepository.upsertFromAuth(
+                    email = firebaseUser.email ?: email,
+                    displayName = name,
+                    avatarUrl = null,
+                    level = englishLevel,
+                    goal = goal
+                )
+                _authState.value = AuthState.Success(localUser)
+            } catch (e: Exception) {
+                _authState.value = AuthState.Error(mapAuthError(e))
+            }
+        }
+    }
+
+    /** @param webClientId Web Client ID lấy từ google-services.json (oauth_client) */
+    fun loginWithGoogle(webClientId: String) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            try {
+                val firebaseUser = authRepository.signInWithGoogle(webClientId)
+                val localUser = userRepository.upsertFromAuth(
+                    email = firebaseUser.email ?: "",
+                    displayName = firebaseUser.displayName ?: "Người dùng",
+                    avatarUrl = firebaseUser.photoUrl?.toString()
+                )
+                _authState.value = AuthState.Success(localUser)
+            } catch (e: Exception) {
+                _authState.value = AuthState.Error(e.message ?: "Đăng nhập Google thất bại")
+            }
         }
     }
 
@@ -58,7 +106,11 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
         }
     }
 
-    fun loginWithGoogle() {
-        _authState.value = AuthState.Error("Chức năng đăng nhập Google đang được phát triển")
+    private fun mapAuthError(e: Exception): String = when (e) {
+        is FirebaseAuthInvalidUserException -> "Tài khoản không tồn tại"
+        is FirebaseAuthInvalidCredentialsException -> "Email hoặc mật khẩu không đúng"
+        is FirebaseAuthUserCollisionException -> "Email này đã được đăng ký"
+        is FirebaseAuthWeakPasswordException -> "Mật khẩu quá yếu (cần ít nhất 6 ký tự)"
+        else -> e.message ?: "Đã có lỗi xảy ra, vui lòng thử lại"
     }
 }

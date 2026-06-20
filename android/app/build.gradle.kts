@@ -4,11 +4,9 @@ plugins {
     alias(libs.plugins.kotlinKapt)
     id("com.google.gms.google-services")
 }
-
 android {
     namespace = "com.lumina.app"
     compileSdk = 37
-
     defaultConfig {
         applicationId = "com.lumina.app"
         minSdk = 26
@@ -17,7 +15,6 @@ android {
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -34,38 +31,37 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-
     buildFeatures {
         viewBinding = true
     }
 }
-
 dependencies {
-    implementation(platform("com.google.firebase:firebase-bom:34.15.0"))
-
+    implementation(platform(libs.firebase.bom))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.material)
+    implementation(libs.firebase.analytics)
 
-    implementation("com.google.firebase:firebase-analytics")
+    // Firebase Auth
+    implementation(libs.firebase.auth)
+
+    // Google Sign-In qua Credential Manager
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
-
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
-
     implementation(libs.navigation.fragment.ktx)
     implementation(libs.navigation.ui.ktx)
-
     implementation(libs.kotlinx.coroutines.android)
-
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
-
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
