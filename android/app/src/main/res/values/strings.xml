@@ -14,4 +14,29 @@
     <string name="study_goals">Mục tiêu học tập</string>
     <string name="create_account">Tạo tài khoản</string>
     <string name="slogan">Học từ vựng thông minh</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_courses">Courses</string>
+    <string name="nav_practice">Practice</string>
+    <string name="nav_stats">Stats</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Home screen -->
+    <string name="home_app_title">VocabQuiz</string>
+    <string name="home_greeting">Chào buổi sáng, %1$s!</string>
+    <string name="home_subtitle">Sẵn sàng để học từ mới chưa?</string>
+    <string name="home_streak_days">%1$d ngày liên tiếp</string>
+    <string name="home_daily_goal">Mục tiêu ngày</string>
+    <string name="home_xp_progress">%1$d / %2$d XP</string>
+    <string name="home_total_words">Tổng từ</string>
+    <string name="home_streak_label">Streak</string>
+    <string name="home_accuracy_label">Tỉ lệ đúng</string>
+    <string name="home_continue_learning">Tiếp tục học</string>
+    <string name="home_review_title">Từ cần ôn hôm nay</string>
+    <string name="home_review_subtitle">Có %1$d từ vựng đang chờ bạn ôn tập dựa trên thuật toán Spaced Repetition.</string>
+    <string name="home_start_review">Bắt đầu ôn tập</string>
+    <string name="home_my_courses">Khóa học của tôi</string>
+    <string name="home_view_all">Xem tất cả</string>
+    <string name="home_words_progress">%1$d/%2$d từ</string>
 </resources>

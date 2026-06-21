@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.lumina.app.ui.home.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/coursesFragment"
+        android:name="com.lumina.app.ui.courses.CoursesFragment"
+        android:label="Courses"
+        tools:layout="@layout/fragment_placeholder" />
+
+    <fragment
+        android:id="@+id/practiceFragment"
+        android:name="com.lumina.app.ui.practice.PracticeFragment"
+        android:label="Practice"
+        tools:layout="@layout/fragment_placeholder" />
+
+    <fragment
+        android:id="@+id/statsFragment"
+        android:name="com.lumina.app.ui.stats.StatsFragment"
+        android:label="Stats"
+        tools:layout="@layout/fragment_placeholder" />
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.lumina.app.ui.profile.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_placeholder" />
+
+</navigation>

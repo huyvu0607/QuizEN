@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Đã có sẵn -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="colorPrimary">#2161F3</color>
@@ -7,4 +8,28 @@
     <color name="colorOnPrimary">#FFFFFF</color>
     <color name="gray_light">#DDDDDD</color>
     <color name="gray_text">#888888</color>
+
+    <!-- Bổ sung cho màn hình Home -->
+    <color name="background_app">#F5F6FA</color>
+    <color name="surface_card">#FFFFFFFF</color>
+    <color name="border_card">#E8EAF0</color>
+    <color name="text_primary">#1A1C1E</color>
+    <color name="text_secondary">#6B7280</color>
+
+    <color name="success_green">#22C55E</color>
+    <color name="success_green_bg">#EFFCF3</color>
+    <color name="success_green_border">#BFEDD0</color>
+
+    <color name="streak_orange">#F97316</color>
+    <color name="streak_green_border">#C9F2D5</color>
+
+    <color name="reminder_bg">#EEF2FF</color>
+    <color name="reminder_border">#DCE3FB</color>
+    <color name="reminder_icon_bg">#2161F3</color>
+
+    <color name="course_business_bg">#2161F3</color>
+    <color name="course_travel_bg">#7C3AED</color>
+    <color name="course_it_bg">#E5E7EB</color>
+
+    <color name="nav_inactive">#9CA3AF</color>
 </resources>
