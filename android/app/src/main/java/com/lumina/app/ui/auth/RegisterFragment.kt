@@ -13,6 +13,7 @@ import com.lumina.app.MainActivity
 import com.lumina.app.data.repository.AuthRepository
 import com.lumina.app.data.repository.UserRepository
 import com.lumina.app.data.source.local.AppDatabase
+import com.lumina.app.data.source.local.pref.SessionManager
 import com.lumina.app.databinding.FragmentRegisterBinding
 import com.lumina.app.viewmodel.ViewModelFactory
 import com.google.android.material.chip.Chip
@@ -38,7 +39,8 @@ class RegisterFragment : Fragment() {
         val database = AppDatabase.getInstance(requireContext())
         val userRepository = UserRepository(database.userDao())
         val authRepository = AuthRepository(requireContext().applicationContext)
-        val factory = ViewModelFactory(userRepository, authRepository)
+        val sessionManager = SessionManager(requireContext().applicationContext)
+        val factory = ViewModelFactory(userRepository, authRepository, sessionManager)
         viewModel = ViewModelProvider(requireActivity(), factory)[AuthViewModel::class.java]
 
         setupLevelDropdown()

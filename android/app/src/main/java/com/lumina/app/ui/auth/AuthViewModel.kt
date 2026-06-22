@@ -8,6 +8,7 @@ import com.lumina.app.data.model.EnglishLevel
 import com.lumina.app.data.model.User
 import com.lumina.app.data.repository.AuthRepository
 import com.lumina.app.data.repository.UserRepository
+import com.lumina.app.data.source.local.pref.SessionManager
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -23,7 +24,8 @@ sealed class AuthState {
 
 class AuthViewModel(
     private val authRepository: AuthRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
 
     private val _authState = MutableLiveData<AuthState>(AuthState.Idle)
@@ -44,6 +46,7 @@ class AuthViewModel(
                     displayName = firebaseUser.displayName ?: email.substringBefore("@"),
                     avatarUrl = firebaseUser.photoUrl?.toString()
                 )
+                sessionManager.saveSession(localUser.id, localUser.email)
                 _authState.value = AuthState.Success(localUser)
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(mapAuthError(e))
@@ -70,6 +73,7 @@ class AuthViewModel(
                     level = englishLevel,
                     goal = goal
                 )
+                sessionManager.saveSession(localUser.id, localUser.email)
                 _authState.value = AuthState.Success(localUser)
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(mapAuthError(e))
@@ -88,6 +92,7 @@ class AuthViewModel(
                     displayName = firebaseUser.displayName ?: "Người dùng",
                     avatarUrl = firebaseUser.photoUrl?.toString()
                 )
+                sessionManager.saveSession(localUser.id, localUser.email)
                 _authState.value = AuthState.Success(localUser)
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(e.message ?: "Đăng nhập Google thất bại")

@@ -8,6 +8,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth
 import com.lumina.app.MainActivity
+import com.lumina.app.data.source.local.pref.SessionManager
 import com.lumina.app.databinding.ActivityAuthBinding
 
 class AuthActivity : AppCompatActivity() {
@@ -16,10 +17,9 @@ class AuthActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // AuthActivity là LAUNCHER activity (xem AndroidManifest.xml), nên việc check
-        // "đã đăng nhập chưa" phải nằm ở đây. Nếu đã có session Firebase, bỏ qua
-        // màn hình đăng nhập/đăng ký, vào thẳng MainActivity.
-        if (FirebaseAuth.getInstance().currentUser != null) {
+        // Kiểm tra session từ cả Firebase và SharedPreferences
+        val sessionManager = SessionManager(applicationContext)
+        if (FirebaseAuth.getInstance().currentUser != null || sessionManager.isLoggedIn()) {
             startActivity(Intent(this, MainActivity::class.java))
             finish()
             return
