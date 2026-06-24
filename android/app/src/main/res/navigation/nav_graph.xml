@@ -35,4 +35,16 @@
         android:label="Profile"
         tools:layout="@layout/fragment_placeholder" />
 
+    <fragment
+        android:id="@+id/courseDetailFragment"
+        android:name="com.lumina.app.ui.courses.CourseDetailFragment"
+        android:label="Course Detail"
+        tools:layout="@layout/fragment_course_detail" />
+
+    <fragment
+        android:id="@+id/addUnitFragment"
+        android:name="com.lumina.app.ui.courses.AddUnitFragment"
+        android:label="Add Unit"
+        tools:layout="@layout/fragment_add_unit" />
+
 </navigation>

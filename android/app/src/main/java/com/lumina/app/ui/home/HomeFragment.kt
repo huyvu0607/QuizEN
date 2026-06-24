@@ -5,19 +5,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.lumina.app.R
 import com.lumina.app.databinding.FragmentHomeBinding
+import com.lumina.app.viewmodel.ViewModelFactory
 
-/**
- * Màn hình Home — tổng quan tiến trình học của người dùng.
- * Hiện đang dùng dữ liệu mẫu (mock). Khi backend/API sẵn sàng,
- * thay phần loadMockData() bằng dữ liệu thật từ HomeViewModel.
- */
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel: HomeViewModel by viewModels {
+        ViewModelFactory()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,95 +32,91 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        loadMockData()
+        observeViewModel()
         setupClickListeners()
     }
 
-    private fun loadMockData() {
-        val userName = "Nam"
-        val streakDays = 7
-        val totalWords = 248
-        val accuracyPercent = 84
-        val currentXp = 450
-        val goalXp = 500
+    private fun observeViewModel() {
+        viewModel.uiState.observe(viewLifecycleOwner) { state ->
+            renderState(state)
+        }
+    }
 
-        val continueCourseLevel = "B2 - Intermediate"
-        val continueCourseTitle = "Business English"
-        val continueCourseProgress = 65 // %
-
-        val reviewWordsCount = 12
-
+    private fun renderState(state: HomeUiState) {
         // Greeting + streak badge
-        binding.tvGreeting.text = getString(R.string.home_greeting, userName) + " 👋"
-        binding.tvStreakBadge.text = getString(R.string.home_streak_days, streakDays)
+        binding.tvGreeting.text = getString(R.string.home_greeting, state.userName) + " 👋"
+        binding.tvStreakBadge.text = getString(R.string.home_streak_days, state.streakDays)
 
-        // Daily goal progress
-        binding.tvXpProgress.text = getString(R.string.home_xp_progress, currentXp, goalXp)
-        setProgressWidth(binding.progressDailyGoal, currentXp, goalXp)
+        // Daily goal
+        binding.tvXpProgress.text = getString(R.string.home_xp_progress, state.currentXp, state.goalXp)
+        setProgressWidth(binding.progressDailyGoal, state.currentXp, state.goalXp)
 
-        // Stat cards (mỗi card là 1 <include>)
+        // Stat cards
         binding.statTotalWords.ivStatIcon.setImageResource(R.drawable.ic_layers)
-        binding.statTotalWords.tvStatValue.text = totalWords.toString()
+        binding.statTotalWords.tvStatValue.text = state.totalWords.toString()
         binding.statTotalWords.tvStatLabel.text = getString(R.string.home_total_words)
 
         binding.statStreak.ivStatIcon.setImageResource(R.drawable.ic_flame)
-        binding.statStreak.tvStatValue.text = streakDays.toString()
+        binding.statStreak.tvStatValue.text = state.streakDays.toString()
         binding.statStreak.tvStatLabel.text = getString(R.string.home_streak_label)
 
         binding.statAccuracy.ivStatIcon.setImageResource(R.drawable.ic_check_circle)
-        binding.statAccuracy.tvStatValue.text = "$accuracyPercent%"
+        binding.statAccuracy.tvStatValue.text = "${state.accuracyPercent}%"
         binding.statAccuracy.tvStatLabel.text = getString(R.string.home_accuracy_label)
 
-        // Continue learning card (bên trong layout_home_main_content)
-        binding.mainContent.tvCourseLevel.text = continueCourseLevel
-        binding.mainContent.tvCourseTitle.text = continueCourseTitle
-        binding.mainContent.tvContinuePercent.text = "$continueCourseProgress%"
-        setProgressWidth(binding.mainContent.progressContinueLearning, continueCourseProgress, 100)
+        // Continue learning
+        state.continueLearning?.let { course ->
+            binding.mainContent.tvCourseLevel.text = course.level
+            binding.mainContent.tvCourseTitle.text = course.courseTitle
+            binding.mainContent.tvContinuePercent.text = "${course.progressPercent}%"
+            setProgressWidth(binding.mainContent.progressContinueLearning, course.progressPercent, 100)
+        }
 
-        // Reminder card (cũng nằm trong layout_home_main_content)
+        // Reminder
         binding.mainContent.tvReviewSubtitle.text =
-            getString(R.string.home_review_subtitle, reviewWordsCount)
+            getString(R.string.home_review_subtitle, state.reviewWordsCount)
 
-        // Course card 1: Travel Vocabulary
-        binding.courseCardTravel.ivCourseIcon.setImageResource(R.drawable.ic_plane)
-        binding.courseCardTravel.iconContainer.setBackgroundResource(R.drawable.bg_icon_square_purple)
-        binding.courseCardTravel.tvCourseName.text = "Travel Vocabulary"
-        binding.courseCardTravel.tvCourseWords.text = getString(R.string.home_words_progress, 45, 120)
-        binding.courseCardTravel.progressCourse.setBackgroundResource(R.drawable.bg_progress_fill_purple)
-        setProgressWidth(binding.courseCardTravel.progressCourse, 45, 120)
+        // Course cards (hiện cố định 2 card, sau dùng RecyclerView)
+        if (state.courses.isNotEmpty()) {
+            val travel = state.courses[0]
+            binding.courseCardTravel.ivCourseIcon.setImageResource(travel.iconRes)
+            binding.courseCardTravel.flIconContainer.setBackgroundResource(travel.iconBgRes)
+            binding.courseCardTravel.tvCourseName.text = travel.name
+            binding.courseCardTravel.tvCourseWords.text =
+                getString(R.string.home_words_progress, travel.wordsLearned, travel.wordsTotal)
+            binding.courseCardTravel.pbCourseProgress.max = travel.wordsTotal
+            binding.courseCardTravel.pbCourseProgress.progress = travel.wordsLearned
+        }
 
-        // Course card 2: IT Jargon
-        binding.courseCardIt.ivCourseIcon.setImageResource(R.drawable.ic_code)
-        binding.courseCardIt.iconContainer.setBackgroundResource(R.drawable.bg_icon_square_gray)
-        binding.courseCardIt.tvCourseName.text = "IT Jargon"
-        binding.courseCardIt.tvCourseWords.text = getString(R.string.home_words_progress, 10, 50)
-        binding.courseCardIt.progressCourse.setBackgroundResource(R.drawable.bg_progress_fill_black)
-        setProgressWidth(binding.courseCardIt.progressCourse, 10, 50)
+        if (state.courses.size >= 2) {
+            val it = state.courses[1]
+            binding.courseCardIt.ivCourseIcon.setImageResource(it.iconRes)
+            binding.courseCardIt.flIconContainer.setBackgroundResource(it.iconBgRes)
+            binding.courseCardIt.tvCourseName.text = it.name
+            binding.courseCardIt.tvCourseWords.text =
+                getString(R.string.home_words_progress, it.wordsLearned, it.wordsTotal)
+            binding.courseCardIt.pbCourseProgress.max = it.wordsTotal
+            binding.courseCardIt.pbCourseProgress.progress = it.wordsLearned
+        }
     }
 
-    /**
-     * Set chiều rộng của progress fill (View) theo tỉ lệ current/max,
-     * dựa trên chiều rộng thực tế của progress track sau khi layout xong.
-     */
     private fun setProgressWidth(progressView: View, current: Int, max: Int) {
         val parent = progressView.parent as? View ?: return
         parent.post {
             val ratio = if (max > 0) current.toFloat() / max.toFloat() else 0f
-            val trackWidth = parent.width
             val params = progressView.layoutParams
-            params.width = (trackWidth * ratio.coerceIn(0f, 1f)).toInt()
+            params.width = (parent.width * ratio.coerceIn(0f, 1f)).toInt()
             progressView.layoutParams = params
         }
     }
 
     private fun setupClickListeners() {
         binding.mainContent.btnStartReview.setOnClickListener {
-            // TODO: điều hướng sang màn hình ôn tập flashcard (Practice flow)
-            // findNavController().navigate(R.id.action_homeFragment_to_reviewFragment)
+            // TODO: navigate sang Review/Flashcard screen
         }
 
         binding.mainContent.cardContinueLearning.setOnClickListener {
-            // TODO: điều hướng vào chi tiết Course đang học dở
+            // TODO: navigate sang Course detail
         }
 
         binding.tvViewAll.setOnClickListener {
@@ -127,7 +124,7 @@ class HomeFragment : Fragment() {
         }
 
         binding.ivSettings.setOnClickListener {
-            // TODO: mở màn hình Settings
+            // TODO: navigate sang Settings
         }
     }
 

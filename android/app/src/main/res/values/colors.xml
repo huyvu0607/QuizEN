@@ -32,4 +32,12 @@
     <color name="course_it_bg">#E5E7EB</color>
 
     <color name="nav_inactive">#9CA3AF</color>
+
+    <!-- Cover Colors -->
+    <color name="cover_blue">#2161F3</color>
+    <color name="cover_purple">#9333EA</color>
+    <color name="cover_green">#84CC16</color>
+    <color name="cover_pink">#FCE7F3</color>
+    <color name="cover_orange">#FFEDD5</color>
+    <color name="cover_cyan">#CFFAFE</color>
 </resources>

@@ -1,58 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="190dp"
+    android:id="@+id/cardCourse"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_card_white"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
 
-    <FrameLayout
-        android:id="@+id/iconContainer"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:background="@drawable/bg_icon_square_primary">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <FrameLayout
+            android:id="@+id/flIconContainer"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@drawable/bg_icon_square_gray"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/ivCourseIcon"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_briefcase"
+                app:tint="@color/colorPrimary" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvCourseName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:text="Business English 101"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/ivMore"
+            app:layout_constraintStart_toEndOf="@id/flIconContainer"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvLevelBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_chip_level"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            android:text="B2 - Upper"
+            android:textColor="@color/colorPrimary"
+            android:textSize="11sp"
+            app:layout_constraintStart_toStartOf="@id/tvCourseName"
+            app:layout_constraintTop_toBottomOf="@id/tvCourseName" />
+
+        <TextView
+            android:id="@+id/tvCourseWords"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="45/100 từ"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@id/tvLevelBadge"
+            app:layout_constraintStart_toEndOf="@id/tvLevelBadge"
+            app:layout_constraintTop_toTopOf="@id/tvLevelBadge" />
 
         <ImageView
-            android:id="@+id/ivCourseIcon"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:layout_gravity="center"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_briefcase"
-            android:tint="@color/white"
-            tools:ignore="UseAppTint" />
-    </FrameLayout>
+            android:id="@+id/ivMore"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_more_vert"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/tvCourseName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="Course name"
-        android:textColor="@color/text_primary"
-        android:textSize="15sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/tvCourseWords"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="0/0 từ"
-        android:textColor="@color/text_secondary"
-        android:textSize="12sp" />
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="6dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/bg_progress_track">
-
-        <View
-            android:id="@+id/progressCourse"
+        <ProgressBar
+            android:id="@+id/pbCourseProgress"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:background="@drawable/bg_progress_fill_primary" />
-    </FrameLayout>
-</LinearLayout>
+            android:layout_height="4dp"
+            android:layout_marginTop="12dp"
+            android:progress="45"
+            android:progressDrawable="@drawable/bg_progress_fill_primary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/tvCourseName"
+            app:layout_constraintTop_toBottomOf="@id/tvLevelBadge" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>
