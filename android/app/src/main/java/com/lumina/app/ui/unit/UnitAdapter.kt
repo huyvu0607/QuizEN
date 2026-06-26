@@ -1,4 +1,4 @@
-package com.lumina.app.ui.courses
+package com.lumina.app.ui.unit
 
 import android.view.LayoutInflater
 import android.view.View
@@ -9,9 +9,14 @@ import com.lumina.app.R
 import com.lumina.app.databinding.ItemUnitCardBinding
 
 class UnitAdapter(
-    private val items: List<UnitItem>,
+    private var items: List<UnitItem>,
     private val onItemClick: (UnitItem) -> Unit
 ) : RecyclerView.Adapter<UnitAdapter.UnitViewHolder>() {
+
+    fun updateData(newItems: List<UnitItem>) {
+        items = newItems
+        notifyDataSetChanged()
+    }
 
     class UnitViewHolder(val binding: ItemUnitCardBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -29,7 +34,11 @@ class UnitAdapter(
             tvUnitTitle.text = item.title
             tvUnitSubtitle.text = item.subtitle
 
-            root.setOnClickListener { onItemClick(item) }
+            root.setOnClickListener {
+                if (item.status != UnitStatus.LOCKED) {
+                    onItemClick(item)
+                }
+            }
 
             when (item.status) {
                 UnitStatus.COMPLETED -> {
@@ -42,7 +51,7 @@ class UnitAdapter(
                 }
                 UnitStatus.IN_PROGRESS -> {
                     ivStatus.visibility = View.GONE
-                    pbUnitStatus.visibility = View.VISIBLE
+                    pbUnitStatus.visibility = View.GONE // Ẩn spinner để không gây nhầm lẫn là đang "loading"
                     ivLock.visibility = View.GONE
                     cardUnit.setStrokeColor(ContextCompat.getColorStateList(root.context, R.color.colorPrimary))
                     cardUnit.strokeWidth = 4

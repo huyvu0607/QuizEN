@@ -16,7 +16,7 @@ import androidx.room.PrimaryKey
     )]
 )
 data class QuizSessionEntity(
-    @PrimaryKey val id: Long,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "user_id", index = true) val userId: Long,
     @ColumnInfo(name = "scope_type") val scopeType: String,   // "LESSON", "TOPIC_GROUP"...
     @ColumnInfo(name = "scope_id") val scopeId: Long? = null,
@@ -44,7 +44,7 @@ data class QuizSessionEntity(
     ]
 )
 data class QuizAnswerEntity(
-    @PrimaryKey val id: Long,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "session_id", index = true) val sessionId: Long,
     @ColumnInfo(name = "vocabulary_id", index = true) val vocabularyId: Long,
     @ColumnInfo(name = "question_type") val questionType: String,  // "MULTIPLE_CHOICE", "FILL_IN_BLANK"

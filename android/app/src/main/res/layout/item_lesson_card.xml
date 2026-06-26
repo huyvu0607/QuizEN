@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardLesson"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:strokeColor="@color/colorPrimary"
+    app:strokeWidth="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/ivLessonIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_icon_circle_white_alpha"
+            android:backgroundTint="#EEF2FF"
+            android:padding="12dp"
+            android:src="@drawable/ic_plane"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/colorPrimary" />
+
+        <TextView
+            android:id="@+id/tvLessonTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:text="Tại Sân Bay"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/tvStatusBadge"
+            app:layout_constraintStart_toEndOf="@id/ivLessonIcon"
+            app:layout_constraintTop_toTopOf="@id/ivLessonIcon" />
+
+        <TextView
+            android:id="@+id/tvLessonSubtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="10 từ vựng"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="@id/tvLessonTitle"
+            app:layout_constraintStart_toStartOf="@id/tvLessonTitle"
+            app:layout_constraintTop_toBottomOf="@id/tvLessonTitle" />
+
+        <TextView
+            android:id="@+id/tvStatusBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_badge_gray"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp"
+            android:text="Đã thuộc"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvLessonTitle" />
+
+        <ProgressBar
+            android:id="@+id/pbLessonProgress"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="0dp"
+            android:layout_height="4dp"
+            android:layout_marginTop="16dp"
+            android:progress="45"
+            android:progressDrawable="@drawable/progress_drawable_horizontal"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ivLessonIcon" />
+
+        <LinearLayout
+            android:id="@+id/layoutButtons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/pbLessonProgress">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnFlashcard"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:paddingVertical="10dp"
+                android:text="Flashcard"
+                android:textAllCaps="false"
+                android:textColor="@color/colorPrimary"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_layers"
+                app:iconGravity="textStart"
+                app:iconSize="18dp"
+                app:iconTint="@color/colorPrimary"
+                app:strokeColor="@color/colorPrimary" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnQuiz"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/colorPrimary"
+                android:paddingVertical="10dp"
+                android:text="Quiz"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_book"
+                app:iconGravity="textStart"
+                app:iconSize="18dp"
+                app:iconTint="@color/white" />
+
+        </LinearLayout>
+
+        <!-- Nút More được dời vào góc để quản lý -->
+        <ImageView
+            android:id="@+id/ivMore"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_more_vert"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

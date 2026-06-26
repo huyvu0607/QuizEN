@@ -2,8 +2,6 @@ package com.lumina.app.ui.home
 
 /**
  * Toàn bộ dữ liệu cần hiển thị trên màn Home gom vào 1 data class.
- * Khi BE/Room sẵn sàng, chỉ cần Repository trả đúng kiểu này là Fragment
- * tự cập nhật, không cần sửa UI.
  */
 data class HomeUiState(
     val userName: String = "",
@@ -20,7 +18,9 @@ data class HomeUiState(
 data class ContinueLearningState(
     val courseTitle: String,
     val level: String,
-    val progressPercent: Int   // 0–100
+    val progressPercent: Int,   // 0–100
+    val iconRes: Int? = null,
+    val coverColor: String? = null
 )
 
 data class CourseCardState(
@@ -30,5 +30,6 @@ data class CourseCardState(
     val wordsTotal: Int,
     val iconRes: Int,           // R.drawable.ic_*
     val iconBgRes: Int,         // R.drawable.bg_icon_square_*
+    val coverColor: String? = null,
     val progressBgRes: Int      // R.drawable.bg_progress_fill_*
 )

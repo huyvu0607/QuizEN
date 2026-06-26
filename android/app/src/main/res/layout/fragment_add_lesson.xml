@@ -29,7 +29,7 @@
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Thêm Unit mới"
+            android:text="Thêm Lesson mới"
             android:textColor="@color/colorPrimary"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -61,41 +61,41 @@
             android:layout_height="wrap_content"
             android:padding="20dp">
 
-            <!-- Unit Name -->
+            <!-- Lesson Name -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilUnitName"
+                android:id="@+id/tilLessonTitle"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Tên Unit"
+                android:hint="Tên Lesson"
                 app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etLessonTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Ví dụ: Sân bay" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Unit Selection -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilUnitSelect"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="Unit"
+                app:endIconDrawable="@drawable/ic_arrow_back"
+                app:endIconMode="custom"
+                app:endIconTint="@color/text_secondary"
+                app:layout_constraintTop_toBottomOf="@id/tilLessonTitle">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etUnitName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Ví dụ: Du lịch &amp; Giao thông" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Course Selection -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilCurrentCourse"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="Khóa học"
-                app:endIconDrawable="@drawable/ic_arrow_back"
-                app:endIconMode="custom"
-                app:endIconTint="@color/text_secondary"
-                app:layout_constraintTop_toBottomOf="@id/tilUnitName">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etCourseName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:enabled="false"
-                    android:text="Chọn Khóa học" />
+                    android:text="Chọn Unit" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
@@ -107,7 +107,7 @@
                 android:textColor="@color/text_secondary"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tilCurrentCourse" />
+                app:layout_constraintTop_toBottomOf="@id/tilUnitSelect" />
 
             <!-- Icon Grid -->
             <GridLayout
@@ -118,7 +118,6 @@
                 android:columnCount="4"
                 app:layout_constraintTop_toBottomOf="@id/tvIconLabel">
 
-                <!-- Placeholder for icons - in real app would use a RecyclerView or dynamic views -->
                 <FrameLayout
                     android:layout_width="0dp"
                     android:layout_height="70dp"
@@ -246,7 +245,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="top"
-                    android:hint="Nhập mô tả cho unit này..."
+                    android:hint="Nhập mô tả cho lesson này..."
                     android:inputType="textMultiLine"
                     android:minLines="4" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -371,7 +370,7 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <ProgressBar
-                        android:id="@+id/pbUnitProgress"
+                        android:id="@+id/pbLessonProgress"
                         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                         android:layout_width="0dp"
                         android:layout_height="4dp"
@@ -391,7 +390,7 @@
                         android:textSize="12sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="@id/tvProgressTitle"
-                        app:layout_constraintTop_toBottomOf="@id/pbUnitProgress" />
+                        app:layout_constraintTop_toBottomOf="@id/pbLessonProgress" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -427,7 +426,7 @@
             android:layout_height="56dp"
             android:layout_marginStart="8dp"
             android:layout_weight="1.5"
-            android:text="Lưu Unit"
+            android:text="Lưu Lesson"
             android:textAllCaps="false"
             app:cornerRadius="28dp"
             app:icon="@drawable/ic_save"

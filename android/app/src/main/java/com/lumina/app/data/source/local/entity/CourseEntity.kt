@@ -16,7 +16,7 @@ import androidx.room.PrimaryKey
     )]
 )
 data class CourseEntity(
-    @PrimaryKey val id: Long,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "user_id", index = true) val userId: Long,
     @ColumnInfo(name = "title") val title: String,
     @ColumnInfo(name = "description") val description: String? = null,

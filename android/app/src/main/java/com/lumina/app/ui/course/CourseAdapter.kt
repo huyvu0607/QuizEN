@@ -1,4 +1,4 @@
-package com.lumina.app.ui.courses
+package com.lumina.app.ui.course
 
 import android.view.LayoutInflater
 import android.view.View
@@ -15,14 +15,21 @@ data class CourseUiItem(
     val progress: Int,
     val words: String,
     val iconRes: Int,
+    val coverIcon: String? = null,
+    val coverColor: String? = null,
     val isCompleted: Boolean = false
 )
 
 class CourseAdapter(
-    private val items: List<CourseUiItem>,
+    private var items: List<CourseUiItem>,
     private val onItemClick: (CourseUiItem) -> Unit,
     private val onMoreClick: (View, CourseUiItem) -> Unit
 ) : RecyclerView.Adapter<CourseAdapter.CourseViewHolder>() {
+
+    fun updateData(newItems: List<CourseUiItem>) {
+        items = newItems
+        notifyDataSetChanged()
+    }
 
     class CourseViewHolder(val binding: ItemCourseCardBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -41,6 +48,21 @@ class CourseAdapter(
             tvCourseWords.text = item.words
             ivCourseIcon.setImageResource(item.iconRes)
             
+            // Apply cover color
+            item.coverColor?.let { colorStr ->
+                try {
+                    val color = android.graphics.Color.parseColor(colorStr)
+                    flIconContainer.backgroundTintList = android.content.res.ColorStateList.valueOf(color)
+                    ivCourseIcon.setColorFilter(android.graphics.Color.WHITE)
+                } catch (e: Exception) {
+                    flIconContainer.backgroundTintList = null
+                    ivCourseIcon.setColorFilter(ContextCompat.getColor(root.context, R.color.colorPrimary))
+                }
+            } ?: run {
+                flIconContainer.backgroundTintList = null
+                ivCourseIcon.setColorFilter(ContextCompat.getColor(root.context, R.color.colorPrimary))
+            }
+
             pbCourseProgress.progress = item.progress
             
             if (item.isCompleted) {

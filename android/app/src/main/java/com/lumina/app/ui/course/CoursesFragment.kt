@@ -1,10 +1,14 @@
-package com.lumina.app.ui.courses
+package com.lumina.app.ui.course
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.widget.PopupMenu
@@ -12,11 +16,28 @@ import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.graphics.Color
 import com.lumina.app.R
+import com.lumina.app.data.repository.CourseRepository
+import com.lumina.app.data.source.local.AppDatabase
+import com.lumina.app.data.source.local.pref.SessionManager
 import com.lumina.app.databinding.FragmentCoursesBinding
+import com.lumina.app.viewmodel.ViewModelFactory
+import kotlinx.coroutines.launch
 
 class CoursesFragment : Fragment() {
     private var _binding: FragmentCoursesBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel: CourseViewModel by viewModels {
+        val database = AppDatabase.getInstance(requireContext())
+        val courseRepository = CourseRepository(
+            database.courseDao(),
+            database.unitDao(),
+            database.lessonDao(),
+            database.vocabularyDao()
+        )
+        val sessionManager = SessionManager(requireContext())
+        ViewModelFactory(courseRepository = courseRepository, sessionManager = sessionManager)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -30,26 +51,32 @@ class CoursesFragment : Fragment() {
         
         setupRecyclerView()
         setupListeners()
+        observeViewModel()
     }
 
     private fun setupRecyclerView() {
-        val dummyCourses = listOf(
-            CourseUiItem(1, "Business English 101", "B2 - Upper", 45, "45/100 từ", R.drawable.ic_briefcase),
-            CourseUiItem(2, "Travel Survival Kit", "A2 - Pre-Int", 24, "12/50 từ", R.drawable.ic_plane),
-            CourseUiItem(3, "IELTS Vocabulary", "C1 - Advanced", 100, "500/500 từ", R.drawable.ic_book, true)
-        )
-
         binding.rvCourses.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = CourseAdapter(
-                dummyCourses,
+                emptyList(),
                 onItemClick = { course ->
-                    findNavController().navigate(R.id.courseDetailFragment)
+                    val bundle = Bundle().apply { putLong("course_id", course.id) }
+                    findNavController().navigate(R.id.courseDetailFragment, bundle)
                 },
                 onMoreClick = { view, course ->
                     showCourseOptions(view, course)
                 }
             )
+        }
+    }
+
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.courses.collect { courses ->
+                    (binding.rvCourses.adapter as? CourseAdapter)?.updateData(courses)
+                }
+            }
         }
     }
 
@@ -88,7 +115,7 @@ class CoursesFragment : Fragment() {
                     true
                 }
                 R.id.action_delete -> {
-                    // Xử lý xóa khóa học
+                    viewModel.deleteCourse(course.id)
                     true
                 }
                 else -> false

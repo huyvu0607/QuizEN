@@ -30,5 +30,22 @@ class MainActivity : AppCompatActivity() {
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
         bottomNav.setupWithNavController(navController)
+
+        // Ẩn BottomNav ở các màn hình chi tiết hoặc thêm mới
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.courseDetailFragment,
+                R.id.addUnitFragment,
+                R.id.unitDetailFragment,
+                R.id.addLessonFragment,
+                R.id.vocabularyListFragment,
+                R.id.addVocabularyFragment -> {
+                    bottomNav.visibility = android.view.View.GONE
+                }
+                else -> {
+                    bottomNav.visibility = android.view.View.VISIBLE
+                }
+            }
+        }
     }
 }

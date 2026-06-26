@@ -16,7 +16,7 @@ import androidx.room.PrimaryKey
     )]
 )
 data class LessonEntity(
-    @PrimaryKey val id: Long,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "unit_id", index = true) val unitId: Long,
     @ColumnInfo(name = "title") val title: String,
     @ColumnInfo(name = "description") val description: String? = null,

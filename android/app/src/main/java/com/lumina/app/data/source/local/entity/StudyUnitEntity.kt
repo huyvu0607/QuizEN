@@ -16,7 +16,7 @@ import androidx.room.PrimaryKey
     )]
 )
 data class StudyUnitEntity(
-    @PrimaryKey val id: Long,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "course_id", index = true) val courseId: Long,
     @ColumnInfo(name = "title") val title: String,
     @ColumnInfo(name = "order_index") val orderIndex: Int

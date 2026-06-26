@@ -145,33 +145,44 @@
                 android:layout_marginTop="8dp"
                 android:orientation="horizontal"
                 app:layout_constraintTop_toBottomOf="@id/tvColorLabel">
-                <!-- Màu sắc sẽ được add động hoặc tĩnh -->
+
                 <View
+                    android:id="@+id/colorBlue"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/bg_color_circle_blue" />
+
                 <View
+                    android:id="@+id/colorPurple"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/bg_color_circle_purple" />
+
                 <View
+                    android:id="@+id/colorGreen"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/bg_color_circle_green" />
+
                 <View
+                    android:id="@+id/colorPink"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/bg_color_circle_pink" />
+
                 <View
+                    android:id="@+id/colorOrange"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/bg_color_circle_orange" />
+
                 <View
+                    android:id="@+id/colorCyan"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:background="@drawable/bg_color_circle_cyan" />
@@ -197,10 +208,12 @@
                 app:layout_constraintTop_toBottomOf="@id/tvIconLabel">
 
                 <FrameLayout
+                    android:id="@+id/iconBook"
                     android:layout_width="56dp"
                     android:layout_height="56dp"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/bg_icon_selected_border">
+
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
@@ -210,10 +223,12 @@
                 </FrameLayout>
 
                 <FrameLayout
+                    android:id="@+id/iconStar"
                     android:layout_width="56dp"
                     android:layout_height="56dp"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/bg_icon_square_gray">
+
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
@@ -222,10 +237,12 @@
                 </FrameLayout>
 
                 <FrameLayout
+                    android:id="@+id/iconTrophy"
                     android:layout_width="56dp"
                     android:layout_height="56dp"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/bg_icon_square_gray">
+
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
@@ -234,10 +251,12 @@
                 </FrameLayout>
 
                 <FrameLayout
+                    android:id="@+id/iconBrain"
                     android:layout_width="56dp"
                     android:layout_height="56dp"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/bg_icon_square_gray">
+
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
@@ -246,9 +265,11 @@
                 </FrameLayout>
 
                 <FrameLayout
+                    android:id="@+id/iconGlobe"
                     android:layout_width="56dp"
                     android:layout_height="56dp"
                     android:background="@drawable/bg_icon_square_gray">
+
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"

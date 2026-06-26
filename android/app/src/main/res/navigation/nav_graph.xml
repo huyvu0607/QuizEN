@@ -13,7 +13,7 @@
 
     <fragment
         android:id="@+id/coursesFragment"
-        android:name="com.lumina.app.ui.courses.CoursesFragment"
+        android:name="com.lumina.app.ui.course.CoursesFragment"
         android:label="Courses"
         tools:layout="@layout/fragment_placeholder" />
 
@@ -37,14 +37,56 @@
 
     <fragment
         android:id="@+id/courseDetailFragment"
-        android:name="com.lumina.app.ui.courses.CourseDetailFragment"
+        android:name="com.lumina.app.ui.course.CourseDetailFragment"
         android:label="Course Detail"
         tools:layout="@layout/fragment_course_detail" />
 
     <fragment
         android:id="@+id/addUnitFragment"
-        android:name="com.lumina.app.ui.courses.AddUnitFragment"
+        android:name="com.lumina.app.ui.unit.AddUnitFragment"
         android:label="Add Unit"
         tools:layout="@layout/fragment_add_unit" />
+
+    <fragment
+        android:id="@+id/unitDetailFragment"
+        android:name="com.lumina.app.ui.unit.UnitDetailFragment"
+        android:label="Unit Detail"
+        tools:layout="@layout/fragment_unit_detail" />
+
+    <fragment
+        android:id="@+id/addLessonFragment"
+        android:name="com.lumina.app.ui.lesson.AddLessonFragment"
+        android:label="Add Lesson"
+        tools:layout="@layout/fragment_add_lesson" />
+
+    <fragment
+        android:id="@+id/vocabularyListFragment"
+        android:name="com.lumina.app.ui.vocabulary.VocabularyListFragment"
+        android:label="Vocabulary List"
+        tools:layout="@layout/fragment_vocabulary_list" />
+
+    <fragment
+        android:id="@+id/addVocabularyFragment"
+        android:name="com.lumina.app.ui.vocabulary.AddVocabularyFragment"
+        android:label="Add Vocabulary"
+        tools:layout="@layout/fragment_add_vocabulary">
+        <argument
+            android:name="lesson_id"
+            app:argType="long" />
+        <argument
+            android:name="vocabulary_id"
+            android:defaultValue="-1L"
+            app:argType="long" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/importVocabularyFragment"
+        android:name="com.lumina.app.ui.vocabulary.ImportVocabularyFragment"
+        android:label="Import Vocabulary"
+        tools:layout="@layout/fragment_import_vocabulary">
+        <argument
+            android:name="lesson_id"
+            app:argType="long" />
+    </fragment>
 
 </navigation>

@@ -14,6 +14,12 @@ interface LessonDao {
     @Query("SELECT * FROM lessons WHERE id = :lessonId")
     suspend fun getLessonById(lessonId: Long): LessonEntity?
 
+    @Query("SELECT COUNT(*) FROM lessons WHERE unit_id = :unitId")
+    suspend fun countLessonsByUnit(unitId: Long): Int
+
+    @Query("SELECT COUNT(*) FROM lessons WHERE unit_id IN (SELECT id FROM units WHERE course_id = :courseId)")
+    suspend fun countLessonsByCourse(courseId: Long): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLesson(lesson: LessonEntity)
 

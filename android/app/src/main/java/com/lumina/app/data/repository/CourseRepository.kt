@@ -45,11 +45,17 @@ class CourseRepository(
     suspend fun deleteUnit(unit: StudyUnit) =
         unitDao.deleteUnit(unit.toEntity())
 
+    suspend fun countUnitsByCourse(courseId: Long): Int =
+        unitDao.countUnitsByCourse(courseId)
+
     // ── Lesson ──
     fun getLessonsByUnit(unitId: Long): Flow<List<Lesson>> =
         lessonDao.getLessonsByUnit(unitId).map { list ->
             list.map { it.toModel() }
         }
+
+    suspend fun getLessonById(id: Long): Lesson? =
+        lessonDao.getLessonById(id)?.toModel()
 
     suspend fun insertLesson(lesson: Lesson) =
         lessonDao.insertLesson(lesson.toEntity())
@@ -60,14 +66,29 @@ class CourseRepository(
     suspend fun deleteLesson(lesson: Lesson) =
         lessonDao.deleteLesson(lesson.toEntity())
 
+    suspend fun countLessonsByUnit(unitId: Long): Int =
+        lessonDao.countLessonsByUnit(unitId)
+
+    suspend fun countLessonsByCourse(courseId: Long): Int =
+        lessonDao.countLessonsByCourse(courseId)
+
     // ── Vocabulary ──
     fun getVocabularyByLesson(lessonId: Long): Flow<List<Vocabulary>> =
         vocabularyDao.getVocabularyByLesson(lessonId).map { list ->
             list.map { it.toModel() }
         }
 
+    suspend fun getVocabularyById(id: Long): Vocabulary? =
+        vocabularyDao.getVocabularyById(id)?.toModel()
+
     suspend fun countVocabularyByLesson(lessonId: Long): Int =
         vocabularyDao.countByLesson(lessonId)
+
+    suspend fun countVocabularyByUnit(unitId: Long): Int =
+        vocabularyDao.countByUnit(unitId)
+
+    suspend fun countVocabularyByCourse(courseId: Long): Int =
+        vocabularyDao.countByCourse(courseId)
 
     suspend fun insertVocabulary(vocab: Vocabulary) =
         vocabularyDao.insertVocabulary(vocab.toEntity())

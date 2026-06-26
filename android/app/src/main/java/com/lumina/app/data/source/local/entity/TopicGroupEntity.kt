@@ -16,7 +16,7 @@ import androidx.room.PrimaryKey
     )]
 )
 data class TopicGroupEntity(
-    @PrimaryKey val id: Long,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "unit_id", index = true) val unitId: Long,
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "is_ai_generated") val isAiGenerated: Boolean = true,

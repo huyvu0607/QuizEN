@@ -4,12 +4,15 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth
 import com.lumina.app.MainActivity
+import com.lumina.app.data.source.local.AppDatabase
 import com.lumina.app.data.source.local.pref.SessionManager
 import com.lumina.app.databinding.ActivityAuthBinding
+import kotlinx.coroutines.launch
 
 class AuthActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAuthBinding
@@ -17,18 +20,34 @@ class AuthActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Kiểm tra session từ cả Firebase và SharedPreferences
         val sessionManager = SessionManager(applicationContext)
-        if (FirebaseAuth.getInstance().currentUser != null || sessionManager.isLoggedIn()) {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
-            return
+        val firebaseUser = FirebaseAuth.getInstance().currentUser
+        val database = AppDatabase.getInstance(applicationContext)
+
+        // Kiểm tra xem user có thực sự tồn tại trong Room không
+        lifecycleScope.launch {
+            val userId = sessionManager.getUserId()
+            val userInDb = if (userId != -1L) database.userDao().getUserById(userId) else null
+
+            // Chỉ vào MainActivity khi:
+            // 1. Firebase đã login
+            // 2. SessionManager có ID
+            // 3. Quan trọng nhất: User đó phải có trong Database local (Room)
+            if (firebaseUser != null && sessionManager.isLoggedIn() && userInDb != null) {
+                startActivity(Intent(this@AuthActivity, MainActivity::class.java))
+                finish()
+            } else {
+                // Nếu dữ liệu không đồng bộ, xóa hết session để bắt đăng nhập lại từ đầu
+                if (firebaseUser != null || sessionManager.isLoggedIn()) {
+                    FirebaseAuth.getInstance().signOut()
+                    sessionManager.clearSession()
+                }
+                
+                binding = ActivityAuthBinding.inflate(layoutInflater)
+                setContentView(binding.root)
+                setupViewPager()
+            }
         }
-
-        binding = ActivityAuthBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        setupViewPager()
     }
 
     private fun setupViewPager() {

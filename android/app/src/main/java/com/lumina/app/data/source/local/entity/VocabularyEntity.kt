@@ -16,7 +16,7 @@ import androidx.room.PrimaryKey
     )]
 )
 data class VocabularyEntity(
-    @PrimaryKey val id: Long,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "lesson_id", index = true) val lessonId: Long,
     @ColumnInfo(name = "word") val word: String,
     @ColumnInfo(name = "meaning") val meaning: String,

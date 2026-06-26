@@ -8,6 +8,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.lumina.app.R
+import com.lumina.app.data.repository.HomeRepository
+import com.lumina.app.data.source.local.AppDatabase
+import com.lumina.app.data.source.local.pref.SessionManager
 import com.lumina.app.databinding.FragmentHomeBinding
 import com.lumina.app.viewmodel.ViewModelFactory
 
@@ -17,7 +20,14 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: HomeViewModel by viewModels {
-        ViewModelFactory()
+        val database = AppDatabase.getInstance(requireContext())
+        val homeRepository = HomeRepository(
+            database.userDao(),
+            database.courseDao(),
+            database.vocabularyDao()
+        )
+        val sessionManager = SessionManager(requireContext())
+        ViewModelFactory(homeRepository = homeRepository, sessionManager = sessionManager)
     }
 
     override fun onCreateView(
@@ -66,37 +76,105 @@ class HomeFragment : Fragment() {
 
         // Continue learning
         state.continueLearning?.let { course ->
-            binding.mainContent.tvCourseLevel.text = course.level
-            binding.mainContent.tvCourseTitle.text = course.courseTitle
-            binding.mainContent.tvContinuePercent.text = "${course.progressPercent}%"
-            setProgressWidth(binding.mainContent.progressContinueLearning, course.progressPercent, 100)
+            with(binding.mainContent) {
+                tvCourseLevel.text = course.level
+                tvCourseTitle.text = course.courseTitle
+                tvContinuePercent.text = "${course.progressPercent}%"
+                setProgressWidth(progressContinueLearning, course.progressPercent, 100)
+
+                course.iconRes?.let { ivCourseIcon.setImageResource(it) }
+                course.coverColor?.let { colorStr ->
+                    try {
+                        val color = android.graphics.Color.parseColor(colorStr)
+                        flIconContainer.backgroundTintList =
+                            android.content.res.ColorStateList.valueOf(color)
+                        ivCourseIcon.setColorFilter(android.graphics.Color.WHITE)
+                    } catch (e: Exception) {
+                        flIconContainer.backgroundTintList = null
+                        ivCourseIcon.setColorFilter(android.graphics.Color.WHITE)
+                    }
+                } ?: run {
+                    flIconContainer.backgroundTintList = null
+                    ivCourseIcon.setColorFilter(android.graphics.Color.WHITE)
+                }
+            }
         }
 
         // Reminder
         binding.mainContent.tvReviewSubtitle.text =
             getString(R.string.home_review_subtitle, state.reviewWordsCount)
 
-        // Course cards (hiện cố định 2 card, sau dùng RecyclerView)
+        // Course cards
         if (state.courses.isNotEmpty()) {
             val travel = state.courses[0]
-            binding.courseCardTravel.ivCourseIcon.setImageResource(travel.iconRes)
-            binding.courseCardTravel.flIconContainer.setBackgroundResource(travel.iconBgRes)
-            binding.courseCardTravel.tvCourseName.text = travel.name
-            binding.courseCardTravel.tvCourseWords.text =
-                getString(R.string.home_words_progress, travel.wordsLearned, travel.wordsTotal)
-            binding.courseCardTravel.pbCourseProgress.max = travel.wordsTotal
-            binding.courseCardTravel.pbCourseProgress.progress = travel.wordsLearned
+            with(binding.courseCardTravel) {
+                ivCourseIcon.setImageResource(travel.iconRes)
+                travel.coverColor?.let { colorStr ->
+                    try {
+                        val color = android.graphics.Color.parseColor(colorStr)
+                        flIconContainer.backgroundTintList =
+                            android.content.res.ColorStateList.valueOf(color)
+                        ivCourseIcon.setColorFilter(android.graphics.Color.WHITE)
+                    } catch (e: Exception) {
+                        flIconContainer.backgroundTintList = null
+                        ivCourseIcon.setColorFilter(
+                            androidx.core.content.ContextCompat.getColor(
+                                requireContext(),
+                                R.color.colorPrimary
+                            )
+                        )
+                    }
+                } ?: run {
+                    flIconContainer.backgroundTintList = null
+                    ivCourseIcon.setColorFilter(
+                        androidx.core.content.ContextCompat.getColor(
+                            requireContext(),
+                            R.color.colorPrimary
+                        )
+                    )
+                }
+                tvCourseName.text = travel.name
+                tvCourseWords.text =
+                    getString(R.string.home_words_progress, travel.wordsLearned, travel.wordsTotal)
+                pbCourseProgress.max = travel.wordsTotal
+                pbCourseProgress.progress = travel.wordsLearned
+            }
         }
 
         if (state.courses.size >= 2) {
             val it = state.courses[1]
-            binding.courseCardIt.ivCourseIcon.setImageResource(it.iconRes)
-            binding.courseCardIt.flIconContainer.setBackgroundResource(it.iconBgRes)
-            binding.courseCardIt.tvCourseName.text = it.name
-            binding.courseCardIt.tvCourseWords.text =
-                getString(R.string.home_words_progress, it.wordsLearned, it.wordsTotal)
-            binding.courseCardIt.pbCourseProgress.max = it.wordsTotal
-            binding.courseCardIt.pbCourseProgress.progress = it.wordsLearned
+            with(binding.courseCardIt) {
+                ivCourseIcon.setImageResource(it.iconRes)
+                it.coverColor?.let { colorStr ->
+                    try {
+                        val color = android.graphics.Color.parseColor(colorStr)
+                        flIconContainer.backgroundTintList =
+                            android.content.res.ColorStateList.valueOf(color)
+                        ivCourseIcon.setColorFilter(android.graphics.Color.WHITE)
+                    } catch (e: Exception) {
+                        flIconContainer.backgroundTintList = null
+                        ivCourseIcon.setColorFilter(
+                            androidx.core.content.ContextCompat.getColor(
+                                requireContext(),
+                                R.color.colorPrimary
+                            )
+                        )
+                    }
+                } ?: run {
+                    flIconContainer.backgroundTintList = null
+                    ivCourseIcon.setColorFilter(
+                        androidx.core.content.ContextCompat.getColor(
+                            requireContext(),
+                            R.color.colorPrimary
+                        )
+                    )
+                }
+                tvCourseName.text = it.name
+                tvCourseWords.text =
+                    getString(R.string.home_words_progress, it.wordsLearned, it.wordsTotal)
+                pbCourseProgress.max = it.wordsTotal
+                pbCourseProgress.progress = it.wordsLearned
+            }
         }
     }
 

@@ -14,6 +14,9 @@ interface UnitDao {
     @Query("SELECT * FROM units WHERE id = :unitId")
     suspend fun getUnitById(unitId: Long): StudyUnitEntity?
 
+    @Query("SELECT COUNT(*) FROM units WHERE course_id = :courseId")
+    suspend fun countUnitsByCourse(courseId: Long): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUnit(unit: StudyUnitEntity)
 

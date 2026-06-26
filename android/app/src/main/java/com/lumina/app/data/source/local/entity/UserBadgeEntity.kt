@@ -16,7 +16,7 @@ import androidx.room.PrimaryKey
     )]
 )
 data class UserBadgeEntity(
-    @PrimaryKey val id: Long,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "user_id", index = true) val userId: Long,
     @ColumnInfo(name = "badge_code") val badgeCode: String,
     @ColumnInfo(name = "earned_at") val earnedAt: Long

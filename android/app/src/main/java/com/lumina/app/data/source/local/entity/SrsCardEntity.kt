@@ -24,7 +24,7 @@ import androidx.room.PrimaryKey
     ]
 )
 data class SrsCardEntity(
-    @PrimaryKey val id: Long,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "user_id", index = true) val userId: Long,
     @ColumnInfo(name = "vocabulary_id", index = true) val vocabularyId: Long,
     @ColumnInfo(name = "interval_days") val intervalDays: Int = 1,

@@ -18,6 +18,12 @@ interface VocabularyDao {
     @Query("SELECT COUNT(*) FROM vocabulary WHERE lesson_id = :lessonId")
     suspend fun countByLesson(lessonId: Long): Int
 
+    @Query("SELECT COUNT(*) FROM vocabulary WHERE lesson_id IN (SELECT id FROM lessons WHERE unit_id = :unitId)")
+    suspend fun countByUnit(unitId: Long): Int
+
+    @Query("SELECT COUNT(*) FROM vocabulary WHERE lesson_id IN (SELECT id FROM lessons WHERE unit_id IN (SELECT id FROM units WHERE course_id = :courseId))")
+    suspend fun countByCourse(courseId: Long): Int
+
     // Lấy từ theo nhiều lesson (quiz trộn)
     @Query("SELECT * FROM vocabulary WHERE lesson_id IN (:lessonIds)")
     suspend fun getVocabularyByLessons(lessonIds: List<Long>): List<VocabularyEntity>
