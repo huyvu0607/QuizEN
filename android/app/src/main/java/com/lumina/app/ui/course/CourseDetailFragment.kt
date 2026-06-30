@@ -31,7 +31,8 @@ class CourseDetailFragment : Fragment() {
             database.courseDao(),
             database.unitDao(),
             database.lessonDao(),
-            database.vocabularyDao()
+            database.vocabularyDao(),
+            firestoreSync = com.lumina.app.data.repository.FirestoreSyncManager()
         )
         val sessionManager = SessionManager(requireContext())
         ViewModelFactory(courseRepository = courseRepository, sessionManager = sessionManager)

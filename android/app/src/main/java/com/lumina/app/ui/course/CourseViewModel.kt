@@ -46,6 +46,50 @@ class CourseViewModel(
 
     init {
         loadCourses()
+        syncFromCloud()
+    }
+
+    private fun syncFromCloud() {
+        viewModelScope.launch {
+            val userId = sessionManager.getUserId()
+            if (userId == -1L) return@launch
+            
+            val firestoreSync = com.lumina.app.data.repository.FirestoreSyncManager()
+            
+            try {
+                android.util.Log.d("Sync", "Starting deep sync from cloud...")
+                val remoteCourses = firestoreSync.fetchAllCourses(userId)
+                
+                remoteCourses.forEach { remoteCourse ->
+                    val localCourse = repository.getCourseById(remoteCourse.id)
+                    if (localCourse == null) {
+                        android.util.Log.d("Sync", "Downloading course: ${remoteCourse.title}")
+                        repository.insertCourse(remoteCourse)
+                        
+                        // Tải Units
+                        val remoteUnits = firestoreSync.fetchAllUnits(userId, remoteCourse.id)
+                        remoteUnits.forEach { remoteUnit ->
+                            repository.insertUnit(remoteUnit)
+                            
+                            // Tải Lessons
+                            val remoteLessons = firestoreSync.fetchAllLessons(userId, remoteCourse.id, remoteUnit.id)
+                            remoteLessons.forEach { remoteLesson ->
+                                repository.insertLesson(remoteLesson)
+                                
+                                // Tải Vocabularies
+                                val remoteVocabs = firestoreSync.fetchAllVocabularies(userId, remoteCourse.id, remoteUnit.id, remoteLesson.id)
+                                if (remoteVocabs.isNotEmpty()) {
+                                    repository.insertVocabularyList(remoteVocabs)
+                                }
+                            }
+                        }
+                    }
+                }
+                android.util.Log.d("Sync", "Deep sync completed successfully.")
+            } catch (e: Exception) {
+                android.util.Log.e("Sync", "Deep sync failed: ${e.message}")
+            }
+        }
     }
 
     fun clearSaveResult() {
@@ -106,29 +150,38 @@ class CourseViewModel(
         viewModelScope.launch {
             repository.getLessonsByUnit(unitId).collectLatest { lessonList ->
                 val uiItems = mutableListOf<LessonUiItem>()
-                lessonList.forEachIndexed { index, lesson ->
+                lessonList.forEach { lesson ->
                     val wordCount = repository.countVocabularyByLesson(lesson.id)
+                    val learnedCount = repository.countLearnedVocabularyByLesson(lesson.id)
+                    
+                    val status = when {
+                        wordCount == 0 -> LessonStatus.NOT_STARTED
+                        learnedCount >= wordCount -> LessonStatus.COMPLETED
+                        learnedCount > 0 -> LessonStatus.LEARNING
+                        else -> LessonStatus.NOT_STARTED
+                    }
+
                     uiItems.add(LessonUiItem(
                         id = lesson.id,
                         title = lesson.title,
                         subtitle = "$wordCount từ vựng",
-                        status = when (index) {
-                            0 -> LessonStatus.COMPLETED
-                            1 -> LessonStatus.LEARNING
-                            else -> LessonStatus.NOT_STARTED
-                        },
-                        progress = if (index == 1) 45 else 0,
-                        iconRes = when (index % 4) {
-                            0 -> com.lumina.app.R.drawable.ic_plane
-                            1 -> com.lumina.app.R.drawable.ic_layers
-                            2 -> com.lumina.app.R.drawable.ic_book
-                            else -> com.lumina.app.R.drawable.ic_briefcase
-                        },
+                        status = status,
+                        progress = if (wordCount > 0) (learnedCount * 100) / wordCount else 0,
+                        iconRes = getIconResForLesson(lesson.id.toInt()),
                         wordCount = wordCount
                     ))
                 }
                 _lessons.value = uiItems
             }
+        }
+    }
+
+    private fun getIconResForLesson(id: Int): Int {
+        return when (id % 4) {
+            0 -> com.lumina.app.R.drawable.ic_plane
+            1 -> com.lumina.app.R.drawable.ic_layers
+            2 -> com.lumina.app.R.drawable.ic_book
+            else -> com.lumina.app.R.drawable.ic_briefcase
         }
     }
 
@@ -345,6 +398,34 @@ class CourseViewModel(
                 loadTopicGroups(unitId)
             }
             _isLoadingAiGrouping.value = false
+        }
+    }
+
+    fun renameTopicGroup(groupId: Long, unitId: Long, newName: String) {
+        viewModelScope.launch {
+            repository.renameTopicGroup(groupId, newName)
+            loadTopicGroups(unitId)
+        }
+    }
+
+    fun deleteTopicGroup(groupId: Long, unitId: Long) {
+        viewModelScope.launch {
+            repository.deleteTopicGroup(groupId)
+            loadTopicGroups(unitId)
+        }
+    }
+
+    fun addTopicGroup(unitId: Long, name: String) {
+        viewModelScope.launch {
+            repository.createTopicGroup(unitId, name)
+            loadTopicGroups(unitId)
+        }
+    }
+
+    fun moveWordToGroup(vocabId: Long, targetGroupId: Long, unitId: Long) {
+        viewModelScope.launch {
+            repository.moveWordToTopicGroup(vocabId, targetGroupId, unitId)
+            loadTopicGroups(unitId)
         }
     }
 

@@ -63,6 +63,19 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="#1E293B" />
+
+        <ImageButton
+            android:id="@+id/btnAddGroup"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_add"
+            android:contentDescription="Add manual group"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnRefresh"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="#1E293B" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- View Mode Toggle -->

@@ -55,6 +55,7 @@ converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", ve
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
 
 # Google Sign-In (Credential Manager - cách mới, thay GoogleSignInClient đã deprecated)
 androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }

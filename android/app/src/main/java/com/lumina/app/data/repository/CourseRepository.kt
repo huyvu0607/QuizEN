@@ -19,7 +19,8 @@ class CourseRepository(
     private val vocabularyDao: VocabularyDao,
     private val topicGroupDao: TopicGroupDao? = null,
     private val dictionaryApiService: DictionaryApiService? = null,
-    private val geminiService: GeminiService? = null
+    private val geminiService: GeminiService? = null,
+    private val firestoreSync: FirestoreSyncManager? = null
 ) {
     // ── AI Services ──
     suspend fun explainWordWithAi(word: String, meaning: String): String? {
@@ -33,22 +34,36 @@ class CourseRepository(
     suspend fun groupVocabularyWithAi(unitId: Long): Boolean {
         if (geminiService == null || topicGroupDao == null) return false
         
-        val vocabList = vocabularyDao.getVocabularyByUnit(unitId).first()
-        if (vocabList.isEmpty()) return false
-        
-        val wordStrings = vocabList.map { it.word }
-        val rawResult = geminiService.groupVocabularyByTopics(wordStrings) ?: return false
-        
         try {
+            val vocabList = vocabularyDao.getVocabularyByUnit(unitId).first()
+            if (vocabList.isEmpty()) {
+                android.util.Log.e("CourseRepository", "No vocabulary found for unit $unitId")
+                return false
+            }
+            
+            val wordStrings = vocabList.map { it.word }
+            android.util.Log.d("CourseRepository", "Requesting AI to group ${wordStrings.size} words")
+            
+            val rawResult = geminiService.groupVocabularyByTopics(wordStrings)
+            if (rawResult.isNullOrBlank()) {
+                android.util.Log.e("CourseRepository", "AI returned empty response")
+                return false
+            }
+            
+            android.util.Log.d("CourseRepository", "AI Response: $rawResult")
+
             // Robust extraction: find the first '[' and last ']'
             val start = rawResult.indexOf('[')
             val end = rawResult.lastIndexOf(']')
-            if (start == -1 || end == -1 || end <= start) return false
+            if (start == -1 || end == -1 || end <= start) {
+                android.util.Log.e("CourseRepository", "Invalid JSON format from AI")
+                return false
+            }
             
             val cleanJson = rawResult.substring(start, end + 1)
             val jsonArray = JSONArray(cleanJson)
             
-            // Xóa các nhóm cũ của Unit này trước khi tạo mới (nếu muốn refresh)
+            // Xóa các nhóm cũ của Unit này trước khi tạo mới
             topicGroupDao.deleteGroupsByUnit(unitId)
             
             for (i in 0 until jsonArray.length()) {
@@ -60,7 +75,8 @@ class CourseRepository(
                     unitId = unitId,
                     name = groupName,
                     isAiGenerated = true,
-                    createdAt = System.currentTimeMillis()
+                    createdAt = System.currentTimeMillis(),
+                    orderIndex = i
                 )
                 
                 val groupId = topicGroupDao.insertGroup(groupEntity)
@@ -77,8 +93,43 @@ class CourseRepository(
             }
             return true
         } catch (e: Exception) {
-            e.printStackTrace()
+            android.util.Log.e("CourseRepository", "Error in groupVocabularyWithAi: ${e.message}", e)
             return false
+        }
+    }
+
+    suspend fun renameTopicGroup(groupId: Long, newName: String) {
+        topicGroupDao?.let { dao ->
+            dao.getGroupById(groupId)?.let { group ->
+                dao.updateGroup(group.copy(name = newName))
+            }
+        }
+    }
+
+    suspend fun deleteTopicGroup(groupId: Long) {
+        topicGroupDao?.let { dao ->
+            dao.getGroupById(groupId)?.let { group ->
+                dao.deleteGroup(group)
+            }
+        }
+    }
+
+    suspend fun createTopicGroup(unitId: Long, name: String) {
+        topicGroupDao?.let { dao ->
+            dao.insertGroup(com.lumina.app.data.source.local.entity.TopicGroupEntity(
+                unitId = unitId,
+                name = name,
+                isAiGenerated = false,
+                createdAt = System.currentTimeMillis()
+            ))
+        }
+    }
+
+    suspend fun moveWordToTopicGroup(vocabId: Long, targetGroupId: Long, unitId: Long) {
+        topicGroupDao?.let { dao ->
+            // Bất kể từ đó đang ở nhóm nào trong Unit này, xóa hết đi để chuyển sang nhóm mới
+            dao.removeWordFromAllGroupsInUnit(vocabId, unitId)
+            dao.insertGroupWord(com.lumina.app.data.source.local.entity.TopicGroupWordEntity(targetGroupId, vocabId))
         }
     }
 
@@ -125,14 +176,23 @@ class CourseRepository(
     suspend fun getCourseById(id: Long): Course? =
         courseDao.getCourseById(id)?.toModel()
 
-    suspend fun insertCourse(course: Course) =
-        courseDao.insertCourse(course.toEntity())
+    suspend fun insertCourse(course: Course): Long {
+        val id = courseDao.insertCourse(course.toEntity())
+        if (id > 0) {
+            firestoreSync?.syncCourse(course.userId, course.copy(id = id))
+        }
+        return id
+    }
 
-    suspend fun updateCourse(course: Course) =
+    suspend fun updateCourse(course: Course) {
         courseDao.updateCourse(course.toEntity())
+        firestoreSync?.syncCourse(course.userId, course)
+    }
 
-    suspend fun deleteCourse(course: Course) =
+    suspend fun deleteCourse(course: Course) {
         courseDao.deleteCourse(course.toEntity())
+        firestoreSync?.deleteCourse(course.userId, course.id)
+    }
 
     // ── Unit ──
     fun getUnitsByCourse(courseId: Long): Flow<List<StudyUnit>> =
@@ -140,14 +200,30 @@ class CourseRepository(
             list.map { it.toModel() }
         }
 
-    suspend fun insertUnit(unit: StudyUnit) =
-        unitDao.insertUnit(unit.toEntity())
+    suspend fun insertUnit(unit: StudyUnit): Long {
+        val id = unitDao.insertUnit(unit.toEntity())
+        if (id > 0) {
+            // To sync unit, we need userId. CourseRepository can find course by courseId
+            getCourseById(unit.courseId)?.let { course ->
+                firestoreSync?.syncUnit(course.userId, course.id, unit.copy(id = id))
+            }
+        }
+        return id
+    }
 
-    suspend fun updateUnit(unit: StudyUnit) =
+    suspend fun updateUnit(unit: StudyUnit) {
         unitDao.updateUnit(unit.toEntity())
+        getCourseById(unit.courseId)?.let { course ->
+            firestoreSync?.syncUnit(course.userId, course.id, unit)
+        }
+    }
 
-    suspend fun deleteUnit(unit: StudyUnit) =
+    suspend fun deleteUnit(unit: StudyUnit) {
         unitDao.deleteUnit(unit.toEntity())
+        getCourseById(unit.courseId)?.let { course ->
+            firestoreSync?.deleteUnit(course.userId, course.id, unit.id)
+        }
+    }
 
     suspend fun countUnitsByCourse(courseId: Long): Int =
         unitDao.countUnitsByCourse(courseId)
@@ -161,14 +237,38 @@ class CourseRepository(
     suspend fun getLessonById(id: Long): Lesson? =
         lessonDao.getLessonById(id)?.toModel()
 
-    suspend fun insertLesson(lesson: Lesson) =
-        lessonDao.insertLesson(lesson.toEntity())
+    suspend fun insertLesson(lesson: Lesson): Long {
+        val id = lessonDao.insertLesson(lesson.toEntity())
+        if (id > 0) {
+            val unit = unitDao.getUnitById(lesson.unitId)?.toModel()
+            unit?.let { u ->
+                getCourseById(u.courseId)?.let { course ->
+                    firestoreSync?.syncLesson(course.userId, course.id, u.id, lesson.copy(id = id))
+                }
+            }
+        }
+        return id
+    }
 
-    suspend fun updateLesson(lesson: Lesson) =
+    suspend fun updateLesson(lesson: Lesson) {
         lessonDao.updateLesson(lesson.toEntity())
+        val unit = unitDao.getUnitById(lesson.unitId)?.toModel()
+        unit?.let { u ->
+            getCourseById(u.courseId)?.let { course ->
+                firestoreSync?.syncLesson(course.userId, course.id, u.id, lesson)
+            }
+        }
+    }
 
-    suspend fun deleteLesson(lesson: Lesson) =
+    suspend fun deleteLesson(lesson: Lesson) {
         lessonDao.deleteLesson(lesson.toEntity())
+        val unit = unitDao.getUnitById(lesson.unitId)?.toModel()
+        unit?.let { u ->
+            getCourseById(u.courseId)?.let { course ->
+                firestoreSync?.deleteLesson(course.userId, course.id, u.id, lesson.id)
+            }
+        }
+    }
 
     suspend fun countLessonsByUnit(unitId: Long): Int =
         lessonDao.countLessonsByUnit(unitId)
@@ -194,15 +294,52 @@ class CourseRepository(
     suspend fun countVocabularyByCourse(courseId: Long): Int =
         vocabularyDao.countByCourse(courseId)
 
-    suspend fun insertVocabulary(vocab: Vocabulary) =
-        vocabularyDao.insertVocabulary(vocab.toEntity())
+    suspend fun countLearnedVocabularyByLesson(lessonId: Long): Int =
+        vocabularyDao.countLearnedByLesson(lessonId)
 
-    suspend fun insertVocabularyList(vocabs: List<Vocabulary>) =
-        vocabularyDao.insertVocabularyList(vocabs.map { it.toEntity() })
+    suspend fun insertVocabulary(vocab: Vocabulary): Long {
+        val id = vocabularyDao.insertVocabulary(vocab.toEntity())
+        if (id > 0) {
+            syncVocabToFirestore(vocab.copy(id = id))
+        }
+        return id
+    }
 
-    suspend fun updateVocabulary(vocab: Vocabulary) =
+    suspend fun insertVocabularyList(vocabs: List<Vocabulary>): List<Long> {
+        val ids = vocabularyDao.insertVocabularyList(vocabs.map { it.toEntity() })
+        vocabs.zip(ids).forEach { (v, id) ->
+            if (id > 0) syncVocabToFirestore(v.copy(id = id))
+        }
+        return ids
+    }
+
+    suspend fun updateVocabulary(vocab: Vocabulary) {
         vocabularyDao.updateVocabulary(vocab.toEntity())
+        syncVocabToFirestore(vocab)
+    }
 
-    suspend fun deleteVocabulary(vocab: Vocabulary) =
+    suspend fun deleteVocabulary(vocab: Vocabulary) {
         vocabularyDao.deleteVocabulary(vocab.toEntity())
+        val lesson = lessonDao.getLessonById(vocab.lessonId)?.toModel()
+        lesson?.let { l ->
+            val unit = unitDao.getUnitById(l.unitId)?.toModel()
+            unit?.let { u ->
+                getCourseById(u.courseId)?.let { course ->
+                    firestoreSync?.deleteVocabulary(course.userId, course.id, u.id, l.id, vocab.id)
+                }
+            }
+        }
+    }
+
+    private suspend fun syncVocabToFirestore(vocab: Vocabulary) {
+        val lesson = lessonDao.getLessonById(vocab.lessonId)?.toModel()
+        lesson?.let { l ->
+            val unit = unitDao.getUnitById(l.unitId)?.toModel()
+            unit?.let { u ->
+                getCourseById(u.courseId)?.let { course ->
+                    firestoreSync?.syncVocabulary(course.userId, course.id, u.id, l.id, vocab)
+                }
+            }
+        }
+    }
 }

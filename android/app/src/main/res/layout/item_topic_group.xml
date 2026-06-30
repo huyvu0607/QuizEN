@@ -45,6 +45,7 @@
             android:id="@+id/tvWordCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:background="@drawable/bg_badge_gray"
             android:paddingHorizontal="10dp"
             android:paddingVertical="4dp"
@@ -53,8 +54,19 @@
             android:textSize="11sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@id/tvGroupName"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnGroupMenu"
             app:layout_constraintTop_toTopOf="@id/tvGroupName" />
+
+        <ImageButton
+            android:id="@+id/btnGroupMenu"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_more_vert"
+            app:layout_constraintBottom_toBottomOf="@id/tvGroupName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvGroupName"
+            app:tint="#94A3B8" />
 
         <TextView
             android:id="@+id/tvGroupDescription"

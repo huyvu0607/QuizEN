@@ -9,7 +9,9 @@ import com.lumina.app.databinding.ItemTopicGroupBinding
 
 class TopicGroupAdapter(
     private var items: List<TopicGroupUiItem>,
-    private val onWordClick: (Long) -> Unit
+    private val onWordClick: (Long) -> Unit,
+    private val onWordLongClick: (Long, String) -> Unit,
+    private val onGroupMenuClick: (android.view.View, TopicGroupUiItem) -> Unit
 ) : RecyclerView.Adapter<TopicGroupAdapter.TopicViewHolder>() {
 
     fun updateData(newItems: List<TopicGroupUiItem>) {
@@ -40,7 +42,15 @@ class TopicGroupAdapter(
                 ) as Chip
                 chip.text = vocab.word
                 chip.setOnClickListener { onWordClick(vocab.id) }
+                chip.setOnLongClickListener {
+                    onWordLongClick(vocab.id, vocab.word)
+                    true
+                }
                 flexWords.addView(chip)
+            }
+
+            btnGroupMenu.setOnClickListener {
+                onGroupMenuClick(it, item)
             }
         }
     }

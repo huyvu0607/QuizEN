@@ -39,4 +39,8 @@
     <string name="home_my_courses">Khóa học của tôi</string>
     <string name="home_view_all">Xem tất cả</string>
     <string name="home_words_progress">%1$d/%2$d từ</string>
+    <string name="level_placeholder">Level %1$s</string>
+    <string name="streak_placeholder">%1$d Day Streak</string>
+    <string name="xp_goal_placeholder">%1$d XP / day</string>
+    <string name="lang_level_placeholder">%1$s Intermediate</string>
 </resources>

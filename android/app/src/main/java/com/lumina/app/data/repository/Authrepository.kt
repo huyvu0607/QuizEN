@@ -37,13 +37,13 @@ class AuthRepository(private val context: Context) {
     }
 
     /**
-     * Đăng nhập/Đăng ký bằng Google thông qua Credential Manager (API mới thay cho
-     * GoogleSignInClient đã deprecated). Trả về FirebaseUser nếu thành công.
+     * Đăng nhập/Đăng ký bằng Google thông qua Credential Manager.
      *
-     * @param webClientId Web Client ID lấy từ google-services.json (oauth_client, client_type = 3)
+     * @param activity Context của Activity để hiển thị trình chọn tài khoản.
+     * @param webClientId Web Client ID lấy từ google-services.json.
      */
-    suspend fun signInWithGoogle(webClientId: String): FirebaseUser {
-        val credentialManager = CredentialManager.create(context)
+    suspend fun signInWithGoogle(activity: android.app.Activity, webClientId: String): FirebaseUser {
+        val credentialManager = CredentialManager.create(activity)
 
         val googleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false)
@@ -54,7 +54,7 @@ class AuthRepository(private val context: Context) {
             .addCredentialOption(googleIdOption)
             .build()
 
-        val result = credentialManager.getCredential(context, request)
+        val result = credentialManager.getCredential(activity, request)
         val credential = result.credential
 
         if (credential !is CustomCredential ||

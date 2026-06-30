@@ -21,7 +21,8 @@ class ViewModelFactory(
     private val sessionManager: SessionManager? = null,
     private val courseRepository: CourseRepository? = null,
     private val homeRepository: HomeRepository? = null,
-    private val srsRepository: SrsRepository? = null
+    private val srsRepository: SrsRepository? = null,
+    private val vocabularyDao: com.lumina.app.data.source.local.dao.VocabularyDao? = null
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -47,6 +48,18 @@ class ViewModelFactory(
                 requireNotNull(courseRepository) { "CourseRepository là bắt buộc để tạo FlashcardViewModel" }
                 requireNotNull(srsRepository) { "SrsRepository là bắt buộc để tạo FlashcardViewModel" }
                 FlashcardViewModel(courseRepository, srsRepository) as T
+            }
+            modelClass.isAssignableFrom(com.lumina.app.ui.profile.ProfileViewModel::class.java) -> {
+                requireNotNull(authRepository) { "AuthRepository là bắt buộc" }
+                requireNotNull(userRepository) { "UserRepository là bắt buộc" }
+                requireNotNull(sessionManager) { "SessionManager là bắt buộc" }
+                requireNotNull(vocabularyDao) { "VocabularyDao là bắt buộc" }
+                com.lumina.app.ui.profile.ProfileViewModel(
+                    authRepository, 
+                    userRepository, 
+                    vocabularyDao,
+                    sessionManager
+                ) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }

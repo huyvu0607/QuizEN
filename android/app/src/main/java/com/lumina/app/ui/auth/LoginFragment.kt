@@ -55,7 +55,7 @@ class LoginFragment : Fragment() {
 
         binding.btnGoogle.setOnClickListener {
             val webClientId = getString(R.string.default_web_client_id)
-            viewModel.loginWithGoogle(webClientId)
+            viewModel.loginWithGoogle(requireActivity(), webClientId)
         }
 
         binding.tvGuestHeader.setOnClickListener {

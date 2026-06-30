@@ -15,7 +15,7 @@ interface CourseDao {
     suspend fun getCourseById(courseId: Long): CourseEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCourse(course: CourseEntity)
+    suspend fun insertCourse(course: CourseEntity): Long
 
     @Update
     suspend fun updateCourse(course: CourseEntity)

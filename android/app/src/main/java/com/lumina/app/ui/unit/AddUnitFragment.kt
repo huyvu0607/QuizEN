@@ -25,10 +25,11 @@ class AddUnitFragment : Fragment() {
     private val viewModel: CourseViewModel by viewModels {
         val database = AppDatabase.getInstance(requireContext())
         val courseRepository = CourseRepository(
-            database.courseDao(),
-            database.unitDao(),
-            database.lessonDao(),
-            database.vocabularyDao()
+            courseDao = database.courseDao(),
+            unitDao = database.unitDao(),
+            lessonDao = database.lessonDao(),
+            vocabularyDao = database.vocabularyDao(),
+            firestoreSync = com.lumina.app.data.repository.FirestoreSyncManager()
         )
         val sessionManager = SessionManager(requireContext())
         ViewModelFactory(courseRepository = courseRepository, sessionManager = sessionManager)

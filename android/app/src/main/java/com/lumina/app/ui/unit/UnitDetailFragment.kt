@@ -38,7 +38,8 @@ class UnitDetailFragment : Fragment() {
             database.lessonDao(),
             database.vocabularyDao(),
             database.topicGroupDao(),
-            geminiService = GeminiService(com.lumina.app.BuildConfig.GEMINI_API_KEY)
+            geminiService = GeminiService(com.lumina.app.BuildConfig.GEMINI_API_KEY),
+            firestoreSync = com.lumina.app.data.repository.FirestoreSyncManager()
         )
         val sessionManager = SessionManager(requireContext())
         ViewModelFactory(courseRepository = courseRepository, sessionManager = sessionManager)

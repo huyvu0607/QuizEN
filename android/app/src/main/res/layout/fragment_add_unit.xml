@@ -68,13 +68,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Tên Unit"
+                app:placeholderText="Ví dụ: Du lịch &amp; Giao thông"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etUnitName"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Ví dụ: Du lịch &amp; Giao thông" />
+                    android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Course Selection -->
@@ -240,13 +240,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:hint="Mô tả"
+                app:placeholderText="Nhập mô tả cho unit này..."
                 app:layout_constraintTop_toBottomOf="@id/gridIcons">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="top"
-                    android:hint="Nhập mô tả cho unit này..."
                     android:inputType="textMultiLine"
                     android:minLines="4" />
             </com.google.android.material.textfield.TextInputLayout>

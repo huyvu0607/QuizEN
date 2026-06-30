@@ -24,6 +24,14 @@ interface VocabularyDao {
     @Query("SELECT COUNT(*) FROM vocabulary WHERE lesson_id IN (SELECT id FROM lessons WHERE unit_id = :unitId)")
     suspend fun countByUnit(unitId: Long): Int
 
+    @Query("""
+        SELECT COUNT(*) FROM vocabulary 
+        INNER JOIN srs_records ON vocabulary.id = srs_records.vocabulary_id
+        WHERE vocabulary.lesson_id = :lessonId
+        AND srs_records.repetition > 0
+    """)
+    suspend fun countLearnedByLesson(lessonId: Long): Int
+
     @Query("SELECT COUNT(*) FROM vocabulary WHERE lesson_id IN (SELECT id FROM lessons WHERE unit_id IN (SELECT id FROM units WHERE course_id = :courseId))")
     suspend fun countByCourse(courseId: Long): Int
 
@@ -43,10 +51,10 @@ interface VocabularyDao {
     suspend fun getVocabularyByLessons(lessonIds: List<Long>): List<VocabularyEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertVocabulary(vocab: VocabularyEntity)
+    suspend fun insertVocabulary(vocab: VocabularyEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertVocabularyList(vocabs: List<VocabularyEntity>)
+    suspend fun insertVocabularyList(vocabs: List<VocabularyEntity>): List<Long>
 
     @Update
     suspend fun updateVocabulary(vocab: VocabularyEntity)

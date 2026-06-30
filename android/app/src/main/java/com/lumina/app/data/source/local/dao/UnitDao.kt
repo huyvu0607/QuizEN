@@ -18,7 +18,7 @@ interface UnitDao {
     suspend fun countUnitsByCourse(courseId: Long): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertUnit(unit: StudyUnitEntity)
+    suspend fun insertUnit(unit: StudyUnitEntity): Long
 
     @Update
     suspend fun updateUnit(unit: StudyUnitEntity)

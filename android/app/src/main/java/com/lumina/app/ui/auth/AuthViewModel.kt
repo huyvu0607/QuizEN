@@ -82,11 +82,11 @@ class AuthViewModel(
     }
 
     /** @param webClientId Web Client ID lấy từ google-services.json (oauth_client) */
-    fun loginWithGoogle(webClientId: String) {
+    fun loginWithGoogle(activity: android.app.Activity, webClientId: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             try {
-                val firebaseUser = authRepository.signInWithGoogle(webClientId)
+                val firebaseUser = authRepository.signInWithGoogle(activity, webClientId)
                 val localUser = userRepository.upsertFromAuth(
                     email = firebaseUser.email ?: "",
                     displayName = firebaseUser.displayName ?: "Người dùng",

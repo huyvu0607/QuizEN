@@ -38,7 +38,8 @@ class AddVocabularyFragment : Fragment() {
             vocabularyDao = database.vocabularyDao(),
             topicGroupDao = database.topicGroupDao(),
             dictionaryApiService = DictionaryApiService.create(),
-            geminiService = GeminiService(com.lumina.app.BuildConfig.GEMINI_API_KEY)
+            geminiService = GeminiService(com.lumina.app.BuildConfig.GEMINI_API_KEY),
+            firestoreSync = com.lumina.app.data.repository.FirestoreSyncManager()
         )
         val sessionManager = SessionManager(requireContext())
         ViewModelFactory(courseRepository = repository, sessionManager = sessionManager)

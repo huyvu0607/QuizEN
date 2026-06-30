@@ -32,8 +32,14 @@ interface TopicGroupDao {
     @Delete
     suspend fun deleteGroup(group: TopicGroupEntity)
 
+    @Query("SELECT * FROM topic_groups WHERE id = :groupId")
+    suspend fun getGroupById(groupId: Long): TopicGroupEntity?
+
     @Query("DELETE FROM topic_groups WHERE unit_id = :unitId")
     suspend fun deleteGroupsByUnit(unitId: Long)
+
+    @Query("DELETE FROM topic_group_words WHERE vocabulary_id = :vocabId AND topic_group_id IN (SELECT id FROM topic_groups WHERE unit_id = :unitId)")
+    suspend fun removeWordFromAllGroupsInUnit(vocabId: Long, unitId: Long)
 
     // Junction table
     @Insert(onConflict = OnConflictStrategy.IGNORE)
