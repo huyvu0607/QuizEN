@@ -15,10 +15,14 @@ import com.lumina.app.data.model.WordType
 import com.lumina.app.data.repository.CourseRepository
 import com.lumina.app.data.source.local.AppDatabase
 import com.lumina.app.data.source.local.pref.SessionManager
+import com.lumina.app.data.source.remote.DictionaryApiService
 import com.lumina.app.databinding.FragmentAddVocabularyBinding
 import com.lumina.app.viewmodel.ViewModelFactory
 import com.lumina.app.ui.course.CourseViewModel
+import com.lumina.app.data.source.remote.ai.GeminiService
+import com.lumina.app.utils.NetworkUtils
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import java.util.Locale
 
 class AddVocabularyFragment : Fragment() {
@@ -27,14 +31,17 @@ class AddVocabularyFragment : Fragment() {
 
     private val viewModel: CourseViewModel by viewModels {
         val database = AppDatabase.getInstance(requireContext())
-        val courseRepository = CourseRepository(
-            database.courseDao(),
-            database.unitDao(),
-            database.lessonDao(),
-            database.vocabularyDao()
+        val repository = CourseRepository(
+            courseDao = database.courseDao(),
+            unitDao = database.unitDao(),
+            lessonDao = database.lessonDao(),
+            vocabularyDao = database.vocabularyDao(),
+            topicGroupDao = database.topicGroupDao(),
+            dictionaryApiService = DictionaryApiService.create(),
+            geminiService = GeminiService(com.lumina.app.BuildConfig.GEMINI_API_KEY)
         )
         val sessionManager = SessionManager(requireContext())
-        ViewModelFactory(courseRepository = courseRepository, sessionManager = sessionManager)
+        ViewModelFactory(courseRepository = repository, sessionManager = sessionManager)
     }
 
     private var lessonId: Long = -1
@@ -94,6 +101,10 @@ class AddVocabularyFragment : Fragment() {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
+        binding.tilWord.setEndIconOnClickListener {
+            suggestVocabularyData()
+        }
+
         binding.btnSave.setOnClickListener {
             saveVocab(true)
         }
@@ -111,6 +122,101 @@ class AddVocabularyFragment : Fragment() {
                 putLong("lesson_id", lessonId)
             }
             findNavController().navigate(R.id.importVocabularyFragment, bundle)
+        }
+    }
+
+    private fun suggestVocabularyData() {
+        val word = binding.etWord.text.toString().trim()
+        if (word.isEmpty()) {
+            Toast.makeText(requireContext(), "Vui lòng nhập từ tiếng Anh trước", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (!NetworkUtils.isNetworkAvailable(requireContext())) {
+            Toast.makeText(requireContext(), "Cần có kết nối mạng để sử dụng tính năng gợi ý AI.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            binding.tilWord.isEndIconVisible = false
+            Toast.makeText(requireContext(), "AI đang lấy dữ liệu cho '$word'...", Toast.LENGTH_SHORT).show()
+            
+            try {
+                val jsonResult = viewModel.suggestVocabularyWithAi(word)
+                if (!jsonResult.isNullOrEmpty()) {
+                    // Robust JSON extraction
+                    val cleanJson = extractJsonContent(jsonResult)
+                    val json = JSONObject(cleanJson)
+                    
+                    val meaning = json.optString("meaning")
+                    val ipa = json.optString("ipa")
+                    val example = json.optString("example")
+                    val type = json.optString("type")
+
+                    if (meaning.isNotEmpty()) binding.etMeaning.setText(meaning)
+                    if (ipa.isNotEmpty()) binding.etIpa.setText(ipa)
+                    if (example.isNotEmpty()) binding.etExample.setText(example)
+                    
+                    if (type.isNotEmpty()) {
+                        val typeFormatted = type.uppercase().let { typeUpper ->
+                            try {
+                                val enumValue = WordType.valueOf(typeUpper)
+                                enumValue.name.lowercase().replaceFirstChar { 
+                                    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() 
+                                }
+                            } catch (e: Exception) {
+                                null
+                            }
+                        }
+                        typeFormatted?.let { binding.actvWordType.setText(it, false) }
+                    }
+
+                    Toast.makeText(requireContext(), "Đã tự động điền dữ liệu từ AI!", Toast.LENGTH_SHORT).show()
+                } else {
+                    fallbackToDictionary(word)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                fallbackToDictionary(word)
+            } finally {
+                binding.tilWord.isEndIconVisible = true
+            }
+        }
+    }
+
+    private fun extractJsonContent(input: String): String {
+        val start = input.indexOf('{')
+        val end = input.lastIndexOf('}')
+        if (start != -1 && end != -1 && end > start) {
+            return input.substring(start, end + 1)
+        }
+        return input.trim().removePrefix("```json").removeSuffix("```").trim()
+    }
+
+    private suspend fun fallbackToDictionary(word: String) {
+        try {
+            val results = viewModel.fetchDictionaryData(word)
+            if (!results.isNullOrEmpty()) {
+                val entry = results[0]
+                
+                // Điền IPA nếu còn trống
+                val ipa = entry.phonetic ?: entry.phonetics.firstOrNull { !it.text.isNullOrEmpty() }?.text
+                if (binding.etIpa.text.isNullOrEmpty() && !ipa.isNullOrEmpty()) {
+                    binding.etIpa.setText(ipa)
+                }
+                
+                // Điền ví dụ nếu còn trống
+                if (binding.etExample.text.isNullOrEmpty()) {
+                    val firstExample = entry.meanings.flatMap { it.definitions }.firstOrNull { !it.example.isNullOrEmpty() }?.example
+                    if (!firstExample.isNullOrEmpty()) binding.etExample.setText(firstExample)
+                }
+                
+                Toast.makeText(requireContext(), "AI không phản hồi, đã lấy từ điển dự phòng (tiếng Anh)", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(requireContext(), "Không tìm thấy dữ liệu cho từ này", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Lỗi kết nối dữ liệu", Toast.LENGTH_SHORT).show()
         }
     }
 

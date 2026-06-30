@@ -9,11 +9,13 @@ import androidx.fragment.app.viewModels
 import androidx.core.view.children
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.lumina.app.R
 import com.lumina.app.data.repository.CourseRepository
 import com.lumina.app.data.source.local.AppDatabase
 import com.lumina.app.data.source.local.pref.SessionManager
+import com.lumina.app.data.source.remote.ai.GeminiService
 import com.lumina.app.databinding.FragmentAddLessonBinding
 import com.lumina.app.viewmodel.ViewModelFactory
 import com.lumina.app.ui.course.CourseViewModel
@@ -25,10 +27,13 @@ class AddLessonFragment : Fragment() {
     private val viewModel: CourseViewModel by viewModels {
         val database = AppDatabase.getInstance(requireContext())
         val courseRepository = CourseRepository(
-            database.courseDao(),
-            database.unitDao(),
-            database.lessonDao(),
-            database.vocabularyDao()
+            courseDao = database.courseDao(),
+            unitDao = database.unitDao(),
+            lessonDao = database.lessonDao(),
+            vocabularyDao = database.vocabularyDao(),
+            topicGroupDao = database.topicGroupDao(),
+            dictionaryApiService = null,
+            geminiService = GeminiService(com.lumina.app.BuildConfig.GEMINI_API_KEY)
         )
         val sessionManager = SessionManager(requireContext())
         ViewModelFactory(courseRepository = courseRepository, sessionManager = sessionManager)
@@ -91,6 +96,8 @@ class AddLessonFragment : Fragment() {
             if (title.isNotEmpty() && unitId != -1L) {
                 viewModel.addLesson(unitId, title, order)
                 requireActivity().onBackPressedDispatcher.onBackPressed()
+            } else {
+                Toast.makeText(requireContext(), "Vui lòng nhập tên Lesson", Toast.LENGTH_SHORT).show()
             }
         }
     }

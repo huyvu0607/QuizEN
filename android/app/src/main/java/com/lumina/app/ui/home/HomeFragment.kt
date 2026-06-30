@@ -24,7 +24,9 @@ class HomeFragment : Fragment() {
         val homeRepository = HomeRepository(
             database.userDao(),
             database.courseDao(),
-            database.vocabularyDao()
+            database.vocabularyDao(),
+            database.srsDao(),
+            database.quizDao()
         )
         val sessionManager = SessionManager(requireContext())
         ViewModelFactory(homeRepository = homeRepository, sessionManager = sessionManager)
@@ -194,7 +196,10 @@ class HomeFragment : Fragment() {
         }
 
         binding.mainContent.cardContinueLearning.setOnClickListener {
-            // TODO: navigate sang Course detail
+            viewModel.uiState.value?.courses?.firstOrNull()?.let { course ->
+                val bundle = Bundle().apply { putLong("course_id", course.id.toLong()) }
+                findNavController().navigate(R.id.courseDetailFragment, bundle)
+            }
         }
 
         binding.tvViewAll.setOnClickListener {

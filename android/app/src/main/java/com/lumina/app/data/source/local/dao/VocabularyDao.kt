@@ -11,6 +11,9 @@ interface VocabularyDao {
     @Query("SELECT * FROM vocabulary WHERE lesson_id = :lessonId")
     fun getVocabularyByLesson(lessonId: Long): Flow<List<VocabularyEntity>>
 
+    @Query("SELECT * FROM vocabulary WHERE lesson_id IN (SELECT id FROM lessons WHERE unit_id = :unitId)")
+    fun getVocabularyByUnit(unitId: Long): Flow<List<VocabularyEntity>>
+
     @Query("SELECT * FROM vocabulary WHERE id = :vocabId")
     suspend fun getVocabularyById(vocabId: Long): VocabularyEntity?
 
@@ -23,6 +26,17 @@ interface VocabularyDao {
 
     @Query("SELECT COUNT(*) FROM vocabulary WHERE lesson_id IN (SELECT id FROM lessons WHERE unit_id IN (SELECT id FROM units WHERE course_id = :courseId))")
     suspend fun countByCourse(courseId: Long): Int
+
+    @Query("""
+        SELECT COUNT(*) FROM vocabulary 
+        INNER JOIN srs_records ON vocabulary.id = srs_records.vocabulary_id
+        WHERE vocabulary.lesson_id IN (SELECT id FROM lessons WHERE unit_id IN (SELECT id FROM units WHERE course_id = :courseId))
+        AND srs_records.repetition > 0
+    """)
+    suspend fun countLearnedByCourse(courseId: Long): Int
+
+    @Query("SELECT COUNT(*) FROM srs_records WHERE repetition > 0")
+    suspend fun countTotalLearned(): Int
 
     // Lấy từ theo nhiều lesson (quiz trộn)
     @Query("SELECT * FROM vocabulary WHERE lesson_id IN (:lessonIds)")

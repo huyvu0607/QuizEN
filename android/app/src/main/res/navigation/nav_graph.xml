@@ -89,4 +89,31 @@
             app:argType="long" />
     </fragment>
 
+    <fragment
+        android:id="@+id/flashcardFragment"
+        android:name="com.lumina.app.ui.flashcard.FlashcardFragment"
+        android:label="Flashcard"
+        tools:layout="@layout/fragment_flashcard">
+        <argument
+            android:name="lesson_id"
+            app:argType="long" />
+        <argument
+            android:name="lesson_name"
+            app:argType="string"
+            android:defaultValue="Flashcard" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/topicGroupFragment"
+        android:name="com.lumina.app.ui.unit.TopicGroupFragment"
+        android:label="Nhóm chủ đề AI"
+        tools:layout="@layout/fragment_topic_groups">
+        <argument
+            android:name="unit_id"
+            app:argType="long" />
+        <argument
+            android:name="unit_title"
+            app:argType="string" />
+    </fragment>
+
 </navigation>

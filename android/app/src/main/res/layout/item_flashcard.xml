@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="24dp"
+    app:cardCornerRadius="32dp"
+    app:cardElevation="8dp"
+    app:cardBackgroundColor="@android:color/white"
+    app:strokeWidth="0dp">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Front Side -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layoutFront"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="32dp">
+
+            <TextView
+                android:id="@+id/tvWordType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_chip_word_type"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="6dp"
+                android:text="Noun"
+                android:textColor="#4338CA"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageButton
+                android:id="@+id/btnFavorite"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_star"
+                android:contentDescription="Favorite"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="#D1D5DB" />
+
+            <ImageButton
+                android:id="@+id/btnAudio"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:background="@drawable/bg_icon_circle_blue_light"
+                android:src="@drawable/ic_volume_up"
+                app:layout_constraintBottom_toTopOf="@id/tvWord"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="packed"
+                app:tint="#0056D2"
+                android:contentDescription="Play audio" />
+
+            <TextView
+                android:id="@+id/tvWord"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:gravity="center"
+                android:text="departure"
+                android:textColor="#1A1C1E"
+                android:textSize="36sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/tvIpa"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnAudio" />
+
+            <TextView
+                android:id="@+id/tvIpa"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="/dɪˈpɑːr.tʃər/"
+                android:textColor="#64748B"
+                android:textSize="20sp"
+                app:layout_constraintBottom_toTopOf="@id/tvHint"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvWord" />
+
+            <TextView
+                android:id="@+id/tvHint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Tap to reveal"
+                android:textColor="#94A3B8"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Back Side -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layoutBack"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="32dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/tvMeaningLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Meaning"
+                    android:textColor="#94A3B8"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvMeaning"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:text="Sự khởi hành, sự ra đi"
+                    android:textColor="#1A1C1E"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:id="@+id/divider"
+                    android:layout_width="60dp"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginBottom="32dp"
+                    android:background="#E2E8F0" />
+
+                <TextView
+                    android:id="@+id/tvExampleLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Example"
+                    android:textColor="#94A3B8"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvExample"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:text="He delayed his departure for a week."
+                    android:textColor="#475569"
+                    android:textSize="18sp"
+                    android:lineSpacingExtra="4dp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvHideHint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Tap to hide"
+                android:textColor="#94A3B8"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </FrameLayout>
+
+</com.google.android.material.card.MaterialCardView>

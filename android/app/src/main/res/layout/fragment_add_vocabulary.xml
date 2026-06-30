@@ -95,7 +95,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="20dp"
-                        android:hint="English word *">
+                        android:hint="English word *"
+                        app:endIconDrawable="@drawable/ic_sparkle"
+                        app:endIconMode="custom"
+                        app:endIconTint="@color/colorPrimary"
+                        app:helperText="Bấm vào icon để AI tự động điền thông tin">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etWord"

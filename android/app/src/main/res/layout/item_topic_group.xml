@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardTopic"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/ivDragHandle"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_drag_handle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvGroupName"
+            app:layout_constraintBottom_toBottomOf="@id/tvGroupName"
+            app:tint="#D1D5DB" />
+
+        <TextView
+            android:id="@+id/tvGroupName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="Phương tiện giao thông"
+            android:textColor="#1E293B"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/tvWordCount"
+            app:layout_constraintStart_toEndOf="@id/ivDragHandle"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvWordCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_badge_gray"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:text="5 từ"
+            android:textColor="#64748B"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/tvGroupName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvGroupName" />
+
+        <TextView
+            android:id="@+id/tvGroupDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Các loại xe cộ và phương tiện di chuyển công cộng."
+            android:textColor="#94A3B8"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/tvGroupName"
+            app:layout_constraintTop_toBottomOf="@id/tvGroupName" />
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/flexWords"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:flexWrap="wrap"
+            app:layout_constraintTop_toBottomOf="@id/tvGroupDescription">
+
+            <!-- Word Chips -->
+
+        </com.google.android.flexbox.FlexboxLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

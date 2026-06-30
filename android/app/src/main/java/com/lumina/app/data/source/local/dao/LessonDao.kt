@@ -21,7 +21,7 @@ interface LessonDao {
     suspend fun countLessonsByCourse(courseId: Long): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertLesson(lesson: LessonEntity)
+    suspend fun insertLesson(lesson: LessonEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLessons(lessons: List<LessonEntity>)

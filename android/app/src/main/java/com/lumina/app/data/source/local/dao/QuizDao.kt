@@ -12,6 +12,12 @@ interface QuizDao {
     @Query("SELECT * FROM quiz_sessions WHERE user_id = :userId ORDER BY completed_at DESC")
     fun getSessionsByUser(userId: Long): Flow<List<QuizSessionEntity>>
 
+    @Query("SELECT SUM(correct_count) FROM quiz_sessions WHERE user_id = :userId")
+    suspend fun getTotalCorrectAnswers(userId: Long): Int?
+
+    @Query("SELECT SUM(total_questions) FROM quiz_sessions WHERE user_id = :userId")
+    suspend fun getTotalQuestionsAsked(userId: Long): Int?
+
     @Query("SELECT * FROM quiz_answers WHERE session_id = :sessionId")
     suspend fun getAnswersBySession(sessionId: Long): List<QuizAnswerEntity>
 

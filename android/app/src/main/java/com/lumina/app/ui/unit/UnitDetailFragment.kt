@@ -22,6 +22,8 @@ import com.lumina.app.viewmodel.ViewModelFactory
 import com.lumina.app.ui.course.CourseViewModel
 import com.lumina.app.ui.lesson.LessonAdapter
 import com.lumina.app.ui.lesson.LessonUiItem
+import com.lumina.app.data.source.remote.ai.GeminiService
+import com.lumina.app.utils.NetworkUtils
 import kotlinx.coroutines.launch
 
 class UnitDetailFragment : Fragment() {
@@ -34,7 +36,9 @@ class UnitDetailFragment : Fragment() {
             database.courseDao(),
             database.unitDao(),
             database.lessonDao(),
-            database.vocabularyDao()
+            database.vocabularyDao(),
+            database.topicGroupDao(),
+            geminiService = GeminiService(com.lumina.app.BuildConfig.GEMINI_API_KEY)
         )
         val sessionManager = SessionManager(requireContext())
         ViewModelFactory(courseRepository = courseRepository, sessionManager = sessionManager)
@@ -70,7 +74,14 @@ class UnitDetailFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = LessonAdapter(
                 emptyList(),
-                onItemClick = { lesson ->
+                onFlashcardClick = { lesson ->
+                    val bundle = Bundle().apply {
+                        putLong("lesson_id", lesson.id)
+                        putString("lesson_name", lesson.title)
+                    }
+                    findNavController().navigate(R.id.flashcardFragment, bundle)
+                },
+                onQuizClick = { lesson ->
                     val bundle = Bundle().apply {
                         putLong("lesson_id", lesson.id)
                     }
@@ -104,6 +115,10 @@ class UnitDetailFragment : Fragment() {
     private fun setupListeners() {
         binding.ivBack.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
+
+        binding.cardAiBanner.setOnClickListener {
+            analyzeUnitWithAi()
         }
 
         binding.fabAddLesson.setOnClickListener {
@@ -164,6 +179,19 @@ class UnitDetailFragment : Fragment() {
             }
             .setNegativeButton("Hủy", null)
             .show()
+    }
+
+    private fun analyzeUnitWithAi() {
+        if (!NetworkUtils.isNetworkAvailable(requireContext())) {
+            android.widget.Toast.makeText(requireContext(), "Cần có mạng để AI phân tích Unit.", android.widget.Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        val bundle = Bundle().apply {
+            putLong("unit_id", unitId)
+            putString("unit_title", binding.tvUnitTitle.text.toString())
+        }
+        findNavController().navigate(R.id.topicGroupFragment, bundle)
     }
 
     override fun onDestroyView() {

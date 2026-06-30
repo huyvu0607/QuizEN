@@ -21,16 +21,19 @@ interface TopicGroupDao {
     fun getVocabularyByGroup(groupId: Long): Flow<List<VocabularyEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertGroup(group: TopicGroupEntity)
+    suspend fun insertGroup(group: TopicGroupEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertGroups(groups: List<TopicGroupEntity>)
+    suspend fun insertGroups(groups: List<TopicGroupEntity>): List<Long>
 
     @Update
     suspend fun updateGroup(group: TopicGroupEntity)
 
     @Delete
     suspend fun deleteGroup(group: TopicGroupEntity)
+
+    @Query("DELETE FROM topic_groups WHERE unit_id = :unitId")
+    suspend fun deleteGroupsByUnit(unitId: Long)
 
     // Junction table
     @Insert(onConflict = OnConflictStrategy.IGNORE)

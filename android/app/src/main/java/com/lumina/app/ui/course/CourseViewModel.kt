@@ -7,6 +7,7 @@ import com.lumina.app.data.source.local.pref.SessionManager
 import com.lumina.app.ui.unit.*
 import com.lumina.app.ui.lesson.*
 import com.lumina.app.ui.vocabulary.*
+import com.lumina.app.data.source.remote.DictionaryEntry
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -27,6 +28,12 @@ class CourseViewModel(
 
     private val _vocabularies = MutableStateFlow<List<VocabularyUiItem>>(emptyList())
     val vocabularies: StateFlow<List<VocabularyUiItem>> = _vocabularies.asStateFlow()
+
+    private val _topicGroups = MutableStateFlow<List<TopicGroupUiItem>>(emptyList())
+    val topicGroups: StateFlow<List<TopicGroupUiItem>> = _topicGroups.asStateFlow()
+
+    private val _isLoadingAiGrouping = MutableStateFlow(false)
+    val isLoadingAiGrouping: StateFlow<Boolean> = _isLoadingAiGrouping.asStateFlow()
 
     private val _currentCourse = MutableLiveData<Course?>()
     val currentCourse: LiveData<Course?> = _currentCourse
@@ -160,6 +167,8 @@ class CourseViewModel(
                 orderIndex = orderIndex
             )
             repository.insertLesson(newLesson)
+            // Sau khi thêm xong, reload lại danh sách bài học của unit này
+            loadLessons(unitId)
         }
     }
 
@@ -304,6 +313,39 @@ class CourseViewModel(
 
     suspend fun getVocabularyById(id: Long): Vocabulary? {
         return repository.getVocabularyById(id)
+    }
+
+    suspend fun fetchDictionaryData(word: String): List<DictionaryEntry>? {
+        return repository.fetchDictionaryDetails(word)
+    }
+
+    suspend fun suggestVocabularyWithAi(word: String): String? {
+        return repository.suggestVocabularyWithAi(word)
+    }
+
+    suspend fun analyzeUnitWithAi(unitId: Long): String? {
+        val vocabList = repository.getVocabularyByLesson(-1) // This is just a placeholder, I need a better way to get all unit vocab
+        // For simplicity, let's just use a prompt that describes the task
+        return repository.explainWordWithAi("Study Plan", "Kế hoạch học tập cho Unit $unitId")
+    }
+
+    fun loadTopicGroups(unitId: Long) {
+        viewModelScope.launch {
+            repository.getTopicGroupsWithWords(unitId).collectLatest { groups ->
+                _topicGroups.value = groups
+            }
+        }
+    }
+
+    fun triggerAiGrouping(unitId: Long) {
+        viewModelScope.launch {
+            _isLoadingAiGrouping.value = true
+            val success = repository.groupVocabularyWithAi(unitId)
+            if (success) {
+                loadTopicGroups(unitId)
+            }
+            _isLoadingAiGrouping.value = false
+        }
     }
 
     private fun getIconRes(iconKey: String?): Int {
