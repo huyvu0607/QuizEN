@@ -84,6 +84,21 @@ class TopicGroupFragment : Fragment() {
                 },
                 onGroupMenuClick = { view, group ->
                     showGroupOptionsMenu(view, group)
+                },
+                onFlashcardClick = { group ->
+                    val bundle = Bundle().apply {
+                        putLong("topic_group_id", group.id)
+                        putString("lesson_name", group.name)
+                    }
+                    findNavController().navigate(R.id.flashcardFragment, bundle)
+                },
+                onQuizClick = { group ->
+                    val bundle = Bundle().apply {
+                        putLong("topic_group_id", group.id)
+                        putString("lesson_name", group.name)
+                        putString("unit_name", arguments?.getString("unit_title") ?: "Unit")
+                    }
+                    findNavController().navigate(R.id.quizSetupFragment, bundle)
                 }
             )
         }

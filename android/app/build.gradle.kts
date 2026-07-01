@@ -78,6 +78,7 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.generativeai)
     implementation(libs.flexbox)
+    implementation(libs.konfetti.xml)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -10,6 +10,7 @@ data class Vocabulary(
     val wordType: WordType? = null,
     val imageUrl: String? = null,
     val audioUrl: String? = null,
+    val isFavorite: Boolean = false,
     val createdAt: Long
 )
 

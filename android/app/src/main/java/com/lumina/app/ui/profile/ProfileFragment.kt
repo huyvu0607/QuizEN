@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.lumina.app.R
 import com.lumina.app.data.repository.AuthRepository
+import com.lumina.app.data.repository.FirestoreSyncManager
 import com.lumina.app.data.repository.UserRepository
 import com.lumina.app.data.source.local.AppDatabase
 import com.lumina.app.data.source.local.pref.SessionManager
@@ -28,7 +29,7 @@ class ProfileFragment : Fragment() {
     private val viewModel: ProfileViewModel by viewModels {
         val database = AppDatabase.getInstance(requireContext())
         val factory = ViewModelFactory(
-            userRepository = UserRepository(database.userDao()),
+            userRepository = UserRepository(database.userDao(), FirestoreSyncManager()),
             authRepository = AuthRepository(requireContext().applicationContext),
             sessionManager = SessionManager(requireContext().applicationContext),
             vocabularyDao = database.vocabularyDao()

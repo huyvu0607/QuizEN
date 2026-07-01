@@ -9,6 +9,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth
 import com.lumina.app.MainActivity
+import com.lumina.app.data.repository.FirestoreSyncManager
 import com.lumina.app.data.repository.UserRepository
 import com.lumina.app.data.source.local.AppDatabase
 import com.lumina.app.data.source.local.pref.SessionManager
@@ -41,7 +42,7 @@ class AuthActivity : AppCompatActivity() {
                 if (userInDb == null) {
                     // Nếu user có trong Firebase nhưng chưa có trong Room (ví dụ mới cài lại app)
                     // Ta tạo lại bản ghi User local từ thông tin Firebase
-                    val userRepository = UserRepository(database.userDao())
+                    val userRepository = UserRepository(database.userDao(), FirestoreSyncManager())
                     val newUser = userRepository.upsertFromAuth(
                         email = firebaseUser.email ?: "",
                         displayName = firebaseUser.displayName ?: "Người dùng",

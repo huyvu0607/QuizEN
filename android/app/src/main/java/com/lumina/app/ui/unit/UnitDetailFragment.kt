@@ -75,6 +75,12 @@ class UnitDetailFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = LessonAdapter(
                 emptyList(),
+                onItemClick = { lesson ->
+                    val bundle = Bundle().apply {
+                        putLong("lesson_id", lesson.id)
+                    }
+                    findNavController().navigate(R.id.vocabularyListFragment, bundle)
+                },
                 onFlashcardClick = { lesson ->
                     val bundle = Bundle().apply {
                         putLong("lesson_id", lesson.id)
@@ -85,8 +91,10 @@ class UnitDetailFragment : Fragment() {
                 onQuizClick = { lesson ->
                     val bundle = Bundle().apply {
                         putLong("lesson_id", lesson.id)
+                        putString("lesson_name", lesson.title)
+                        putString("unit_name", binding.tvUnitTitle.text.toString())
                     }
-                    findNavController().navigate(R.id.vocabularyListFragment, bundle)
+                    findNavController().navigate(R.id.quizSetupFragment, bundle)
                 },
                 onMoreClick = { view, lesson ->
                     showLessonOptionsMenu(view, lesson)

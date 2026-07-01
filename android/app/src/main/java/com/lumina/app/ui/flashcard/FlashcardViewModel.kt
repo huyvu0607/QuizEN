@@ -32,10 +32,17 @@ class FlashcardViewModel(
     private val _isLoadingAi = MutableStateFlow(false)
     val isLoadingAi: StateFlow<Boolean> = _isLoadingAi.asStateFlow()
 
-    fun loadVocabularies(lessonId: Long) {
+    fun loadVocabularies(lessonId: Long = -1, topicGroupId: Long = -1) {
         viewModelScope.launch {
-            repository.getVocabularyByLesson(lessonId).collectLatest {
-                _vocabularies.value = it
+            if (lessonId != -1L) {
+                repository.getVocabularyByLesson(lessonId).collectLatest {
+                    _vocabularies.value = it
+                }
+            } else if (topicGroupId != -1L) {
+                // Giả sử repository có hàm lấy từ theo Topic Group
+                repository.getVocabularyByTopicGroup(topicGroupId).collectLatest {
+                    _vocabularies.value = it
+                }
             }
         }
     }
@@ -56,6 +63,21 @@ class FlashcardViewModel(
 
     fun resetAiExplanation() {
         _aiExplanation.value = null
+    }
+
+    fun toggleFavorite(vocab: Vocabulary) {
+        viewModelScope.launch {
+            val newFavStatus = !vocab.isFavorite
+            repository.toggleFavorite(vocab.id, newFavStatus)
+            
+            // Cập nhật lại danh sách local để UI refresh
+            val currentList = _vocabularies.value.toMutableList()
+            val index = currentList.indexOfFirst { it.id == vocab.id }
+            if (index != -1) {
+                currentList[index] = currentList[index].copy(isFavorite = newFavStatus)
+                _vocabularies.value = currentList
+            }
+        }
     }
 
     fun updateSrs(vocabulary: Vocabulary, rating: SrsRating, userId: Long) {

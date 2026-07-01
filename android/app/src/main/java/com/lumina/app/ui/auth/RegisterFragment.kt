@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.lumina.app.MainActivity
 import com.lumina.app.data.repository.AuthRepository
+import com.lumina.app.data.repository.FirestoreSyncManager
 import com.lumina.app.data.repository.UserRepository
 import com.lumina.app.data.source.local.AppDatabase
 import com.lumina.app.data.source.local.pref.SessionManager
@@ -37,7 +38,7 @@ class RegisterFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val database = AppDatabase.getInstance(requireContext())
-        val userRepository = UserRepository(database.userDao())
+        val userRepository = UserRepository(database.userDao(), FirestoreSyncManager())
         val authRepository = AuthRepository(requireContext().applicationContext)
         val sessionManager = SessionManager(requireContext().applicationContext)
         val factory = ViewModelFactory(userRepository, authRepository, sessionManager)

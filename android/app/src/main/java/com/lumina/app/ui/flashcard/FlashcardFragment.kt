@@ -79,6 +79,7 @@ class FlashcardFragment : Fragment(), TextToSpeech.OnInitListener {
         tts = TextToSpeech(requireContext(), this)
 
         val lessonId = arguments?.getLong("lesson_id") ?: -1L
+        val topicGroupId = arguments?.getLong("topic_group_id") ?: -1L
         val lessonName = arguments?.getString("lesson_name") ?: "Flashcards"
         
         binding.tvUnitTitle.text = lessonName
@@ -92,7 +93,9 @@ class FlashcardFragment : Fragment(), TextToSpeech.OnInitListener {
         observeViewModel()
 
         if (lessonId != -1L) {
-            viewModel.loadVocabularies(lessonId)
+            viewModel.loadVocabularies(lessonId = lessonId)
+        } else if (topicGroupId != -1L) {
+            viewModel.loadVocabularies(topicGroupId = topicGroupId)
         }
     }
 
@@ -102,8 +105,7 @@ class FlashcardFragment : Fragment(), TextToSpeech.OnInitListener {
                 speak(vocab.word, vocab.audioUrl, vocab.exampleSentence)
             },
             onFavoriteClick = { vocab ->
-                // Toggle favorite logic
-                Toast.makeText(requireContext(), "Đã đánh dấu từ khó!", Toast.LENGTH_SHORT).show()
+                viewModel.toggleFavorite(vocab)
             },
             onCardFlipped = { isFlipped ->
                 toggleSrsButtons(isFlipped)

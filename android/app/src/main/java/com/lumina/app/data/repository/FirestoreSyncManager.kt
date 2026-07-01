@@ -13,6 +13,22 @@ class FirestoreSyncManager {
         private const val TAG = "FirestoreSync"
     }
 
+    // ── User Sync ──
+    suspend fun syncUser(user: User, firebaseUid: String) {
+        val userMap = hashMapOf(
+            "displayName" to user.displayName,
+            "email" to user.email,
+            "avatarUrl" to user.avatarUrl,
+            "level" to user.level.name,
+            "goal" to user.goal,
+            "streakCount" to user.streakCount,
+            "totalXp" to user.totalXp,
+            "createdAt" to user.createdAt
+        )
+        db.collection("users").document(firebaseUid).set(userMap, SetOptions.merge()).await()
+        Log.d(TAG, "Synced user info for $firebaseUid")
+    }
+
     // ── Course Sync ──
     suspend fun syncCourse(firebaseUid: String, course: Course) {
         val courseMap = hashMapOf(

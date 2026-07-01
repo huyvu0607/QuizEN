@@ -317,6 +317,11 @@ class CourseRepository(
             list.map { it.toModel() }
         }
 
+    fun getVocabularyByTopicGroup(groupId: Long): Flow<List<Vocabulary>> =
+        topicGroupDao?.getVocabularyByGroup(groupId)?.map { list ->
+            list.map { it.toModel() }
+        } ?: kotlinx.coroutines.flow.flowOf(emptyList())
+
     suspend fun getVocabularyById(id: Long): Vocabulary? =
         vocabularyDao.getVocabularyById(id)?.toModel()
 
@@ -351,6 +356,11 @@ class CourseRepository(
     suspend fun updateVocabulary(vocab: Vocabulary) {
         vocabularyDao.updateVocabulary(vocab.toEntity())
         syncVocabToFirestore(vocab)
+    }
+
+    suspend fun toggleFavorite(vocabId: Long, isFavorite: Boolean) {
+        vocabularyDao.updateFavorite(vocabId, isFavorite)
+        // Optionally sync to Firestore if needed
     }
 
     suspend fun deleteVocabulary(vocab: Vocabulary) {

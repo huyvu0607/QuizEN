@@ -17,6 +17,9 @@ interface VocabularyDao {
     @Query("SELECT * FROM vocabulary WHERE id = :vocabId")
     suspend fun getVocabularyById(vocabId: Long): VocabularyEntity?
 
+    @Query("UPDATE vocabulary SET is_favorite = :isFavorite WHERE id = :vocabId")
+    suspend fun updateFavorite(vocabId: Long, isFavorite: Boolean)
+
     // Đếm số từ trong lesson — thay thế cho wordCount trong Entity
     @Query("SELECT COUNT(*) FROM vocabulary WHERE lesson_id = :lessonId")
     suspend fun countByLesson(lessonId: Long): Int

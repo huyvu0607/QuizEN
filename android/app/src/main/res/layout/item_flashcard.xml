@@ -1,189 +1,225 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cardContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="24dp"
-    app:cardCornerRadius="32dp"
-    app:cardElevation="8dp"
-    app:cardBackgroundColor="@android:color/white"
-    app:strokeWidth="0dp">
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
-    <FrameLayout
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_margin="24dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:cardCornerRadius="32dp"
+        app:cardElevation="8dp"
+        app:cardUseCompatPadding="true"
+        app:strokeColor="#E2E8F0"
+        app:strokeWidth="1dp">
 
-        <!-- Front Side -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layoutFront"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="32dp">
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
-            <TextView
-                android:id="@+id/tvWordType"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_chip_word_type"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="6dp"
-                android:text="Noun"
-                android:textColor="#4338CA"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageButton
-                android:id="@+id/btnFavorite"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_star"
-                android:contentDescription="Favorite"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="#D1D5DB" />
-
-            <ImageButton
-                android:id="@+id/btnAudio"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:background="@drawable/bg_icon_circle_blue_light"
-                android:src="@drawable/ic_volume_up"
-                app:layout_constraintBottom_toTopOf="@id/tvWord"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_chainStyle="packed"
-                app:tint="#0056D2"
-                android:contentDescription="Play audio" />
-
-            <TextView
-                android:id="@+id/tvWord"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:gravity="center"
-                android:text="departure"
-                android:textColor="#1A1C1E"
-                android:textSize="36sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@id/tvIpa"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btnAudio" />
-
-            <TextView
-                android:id="@+id/tvIpa"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center"
-                android:text="/dɪˈpɑːr.tʃər/"
-                android:textColor="#64748B"
-                android:textSize="20sp"
-                app:layout_constraintBottom_toTopOf="@id/tvHint"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvWord" />
-
-            <TextView
-                android:id="@+id/tvHint"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:text="Tap to reveal"
-                android:textColor="#94A3B8"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- Back Side -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layoutBack"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="32dp"
-            android:visibility="gone">
-
-            <LinearLayout
+            <!-- Front Side -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layoutFront"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:layout_height="match_parent"
+                android:padding="24dp">
+
+                <TextView
+                    android:id="@+id/tvWordType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_chip_word_type"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="6dp"
+                    android:text="Noun"
+                    android:textColor="#4338CA"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageButton
+                    android:id="@+id/btnFavorite"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Favorite"
+                    android:src="@drawable/ic_star"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="#D1D5DB" />
+
+                <ImageButton
+                    android:id="@+id/btnAudio"
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:background="@drawable/bg_icon_circle_blue_light"
+                    android:contentDescription="Play audio"
+                    android:src="@drawable/ic_volume_up"
+                    app:layout_constraintBottom_toTopOf="@id/tvWord"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_chainStyle="packed"
+                    app:tint="#0056D2" />
+
+                <TextView
+                    android:id="@+id/tvWord"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:gravity="center"
+                    android:text="departure"
+                    android:textColor="#1A1C1E"
+                    android:textSize="36sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toTopOf="@id/tvIpa"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/btnAudio" />
+
+                <TextView
+                    android:id="@+id/tvIpa"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:text="/dɪˈpɑːr.tʃər/"
+                    android:textColor="#64748B"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toTopOf="@id/tvHint"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvWord" />
+
+                <TextView
+                    android:id="@+id/tvHint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Chạm để xem nghĩa"
+                    android:textColor="#94A3B8"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Back Side -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layoutBack"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="24dp"
+                android:visibility="gone">
 
                 <TextView
                     android:id="@+id/tvMeaningLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Meaning"
-                    android:textColor="#94A3B8"
-                    android:textSize="14sp" />
+                    android:layout_marginTop="16dp"
+                    android:text="NGHĨA CỦA TỪ"
+                    android:textColor="#3B82F6"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/ivAiSparkle"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_icon_circle_blue_light"
+                    android:backgroundTint="#F3E8FF"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_sparkle"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="#A855F7" />
 
                 <TextView
                     android:id="@+id/tvMeaning"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:gravity="center"
-                    android:text="Sự khởi hành, sự ra đi"
-                    android:textColor="#1A1C1E"
+                    android:text="thẻ lên máy bay"
+                    android:textColor="#1E293B"
                     android:textSize="28sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvMeaningLabel" />
 
-                <View
-                    android:id="@+id/divider"
-                    android:layout_width="60dp"
-                    android:layout_height="2dp"
+                <!-- Example Sentence with Sidebar -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/layoutExample"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="32dp"
-                    android:layout_marginBottom="32dp"
-                    android:background="#E2E8F0" />
+                    android:background="@drawable/bg_card_gray_light"
+                    android:padding="16dp"
+                    app:layout_constraintTop_toBottomOf="@id/tvMeaning">
+
+                    <View
+                        android:id="@+id/viewExampleBar"
+                        android:layout_width="4dp"
+                        android:layout_height="0dp"
+                        android:background="#0056D2"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvExample"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:fontFamily="serif"
+                        android:textStyle="italic"
+                        android:lineSpacingExtra="4dp"
+                        android:text="Please have your boarding pass ready at the gate."
+                        android:textColor="#475569"
+                        android:textSize="16sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/viewExampleBar"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- Mnemonic Image Placeholder -->
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivExampleImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="180dp"
+                    android:layout_marginTop="24dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/bg_image_upload"
+                    app:layout_constraintTop_toBottomOf="@id/layoutExample"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.MediumComponent" />
 
                 <TextView
-                    android:id="@+id/tvExampleLabel"
+                    android:id="@+id/tvHideHint"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Example"
+                    android:layout_marginBottom="16dp"
+                    android:text="Chạm để quay lại"
                     android:textColor="#94A3B8"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
 
-                <TextView
-                    android:id="@+id/tvExample"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center"
-                    android:text="He delayed his departure for a week."
-                    android:textColor="#475569"
-                    android:textSize="18sp"
-                    android:lineSpacingExtra="4dp" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvHideHint"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:text="Tap to hide"
-                android:textColor="#94A3B8"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </FrameLayout>
-
-</com.google.android.material.card.MaterialCardView>
+        </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>

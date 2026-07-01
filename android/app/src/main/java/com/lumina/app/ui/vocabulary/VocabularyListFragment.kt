@@ -87,7 +87,7 @@ class VocabularyListFragment : Fragment(), TextToSpeech.OnInitListener {
                     speak(vocab.word, vocab.audioUrl)
                 },
                 onFavoriteClick = { vocab ->
-                    // Handle favorite toggle
+                    viewModel.toggleFavorite(vocab.id, !vocab.isFavorite)
                 },
                 onItemClick = { vocab ->
                     val bundle = Bundle().apply {
@@ -124,6 +124,14 @@ class VocabularyListFragment : Fragment(), TextToSpeech.OnInitListener {
         
         binding.ivSettings.setOnClickListener {
             // Settings dialog
+        }
+
+        binding.btnFlashcard.setOnClickListener {
+            val bundle = Bundle().apply {
+                putLong("lesson_id", lessonId)
+                putString("lesson_name", binding.tvLessonTitle.text.toString())
+            }
+            findNavController().navigate(R.id.flashcardFragment, bundle)
         }
 
         binding.fabAddVocabulary.setOnClickListener {

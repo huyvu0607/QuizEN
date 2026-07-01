@@ -43,7 +43,7 @@ class FlashcardAdapter(
 
                 // Favorite icon color
                 btnFavorite.setColorFilter(
-                    if (vocabulary.id % 5 == 0L) 0xFFF59E0B.toInt() else 0xFFD1D5DB.toInt()
+                    if (vocabulary.isFavorite) 0xFFF59E0B.toInt() else 0xFFD1D5DB.toInt()
                 )
 
                 // Reset card state without animation
@@ -70,18 +70,13 @@ class FlashcardAdapter(
 
                 btnFavorite.setOnClickListener {
                     onFavoriteClick(vocabulary)
-                    // Toggle locally for instant feedback
-                    val isFav = vocabulary.id % 5 == 0L // This logic should ideally come from the model
-                    btnFavorite.setColorFilter(
-                        if (!isFav) 0xFFF59E0B.toInt() else 0xFFD1D5DB.toInt()
-                    )
                 }
             }
         }
 
         private fun flipCard() {
             val root = binding.cardContainer
-            val distance = 12000 // Tăng khoảng cách camera để giảm biến dạng khi xoay
+            val distance = 16000
             val scale = root.resources.displayMetrics.density * distance
             root.cameraDistance = scale
 
@@ -89,9 +84,9 @@ class FlashcardAdapter(
             
             root.animate()
                 .rotationY(targetRotation)
-                .setDuration(400)
+                .setDuration(500)
                 .setUpdateListener { animation ->
-                    // Tại điểm giữa của vòng xoay (90 độ), ta đổi mặt hiển thị
+                    // Đổi mặt ở góc 90 độ để tránh hiện tượng chữ bị ngược
                     if (animation.animatedFraction >= 0.5f) {
                         if (isFront) {
                             binding.layoutFront.visibility = View.GONE
@@ -104,7 +99,7 @@ class FlashcardAdapter(
                 }
                 .withEndAction {
                     isFront = !isFront
-                    onCardFlipped(!isFront) // Notify fragment that card is flipped (isFront is now false if we just flipped to back)
+                    onCardFlipped(!isFront)
                 }
                 .start()
         }

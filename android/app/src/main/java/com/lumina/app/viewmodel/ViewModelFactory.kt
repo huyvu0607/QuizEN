@@ -49,6 +49,17 @@ class ViewModelFactory(
                 requireNotNull(srsRepository) { "SrsRepository là bắt buộc để tạo FlashcardViewModel" }
                 FlashcardViewModel(courseRepository, srsRepository) as T
             }
+            modelClass.isAssignableFrom(com.lumina.app.ui.quiz.QuizViewModel::class.java) -> {
+                requireNotNull(courseRepository) { "CourseRepository là bắt buộc" }
+                requireNotNull(srsRepository) { "SrsRepository là bắt buộc" }
+                requireNotNull(userRepository) { "UserRepository là bắt buộc" }
+                com.lumina.app.ui.quiz.QuizViewModel(courseRepository, srsRepository, userRepository) as T
+            }
+            modelClass.isAssignableFrom(com.lumina.app.ui.practice.PracticeViewModel::class.java) -> {
+                requireNotNull(homeRepository) { "HomeRepository là bắt buộc" }
+                requireNotNull(sessionManager) { "SessionManager là bắt buộc" }
+                com.lumina.app.ui.practice.PracticeViewModel(homeRepository, sessionManager) as T
+            }
             modelClass.isAssignableFrom(com.lumina.app.ui.profile.ProfileViewModel::class.java) -> {
                 requireNotNull(authRepository) { "AuthRepository là bắt buộc" }
                 requireNotNull(userRepository) { "UserRepository là bắt buộc" }

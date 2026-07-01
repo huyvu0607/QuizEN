@@ -96,6 +96,11 @@
         tools:layout="@layout/fragment_flashcard">
         <argument
             android:name="lesson_id"
+            android:defaultValue="-1L"
+            app:argType="long" />
+        <argument
+            android:name="topic_group_id"
+            android:defaultValue="-1L"
             app:argType="long" />
         <argument
             android:name="lesson_name"
@@ -115,5 +120,65 @@
             android:name="unit_title"
             app:argType="string" />
     </fragment>
+
+    <fragment
+        android:id="@+id/quizSetupFragment"
+        android:name="com.lumina.app.ui.quiz.QuizSetupFragment"
+        android:label="Quiz Setup"
+        tools:layout="@layout/fragment_quiz_setup">
+        <argument
+            android:name="lesson_id"
+            android:defaultValue="-1L"
+            app:argType="long" />
+        <argument
+            android:name="topic_group_id"
+            android:defaultValue="-1L"
+            app:argType="long" />
+        <argument
+            android:name="lesson_name"
+            app:argType="string"
+            android:defaultValue="Lesson" />
+        <argument
+            android:name="unit_name"
+            app:argType="string"
+            android:defaultValue="Unit" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/quizFragment"
+        android:name="com.lumina.app.ui.quiz.QuizFragment"
+        android:label="Quiz"
+        tools:layout="@layout/fragment_quiz">
+        <argument
+            android:name="lesson_id"
+            android:defaultValue="-1L"
+            app:argType="long" />
+        <argument
+            android:name="topic_group_id"
+            android:defaultValue="-1L"
+            app:argType="long" />
+        <argument
+            android:name="question_count"
+            app:argType="integer"
+            android:defaultValue="10" />
+        <argument
+            android:name="use_multiple_choice"
+            app:argType="boolean"
+            android:defaultValue="true" />
+        <argument
+            android:name="use_fill_blank"
+            app:argType="boolean"
+            android:defaultValue="true" />
+        <argument
+            android:name="mode"
+            app:argType="string"
+            android:defaultValue="Practice" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/quizResultFragment"
+        android:name="com.lumina.app.ui.quiz.QuizResultFragment"
+        android:label="Quiz Result"
+        tools:layout="@layout/fragment_quiz_result" />
 
 </navigation>

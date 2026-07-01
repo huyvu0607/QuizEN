@@ -25,5 +25,6 @@ data class VocabularyEntity(
     @ColumnInfo(name = "word_type") val wordType: String? = null,  // lưu "NOUN", "VERB"...
     @ColumnInfo(name = "image_url") val imageUrl: String? = null,
     @ColumnInfo(name = "audio_url") val audioUrl: String? = null,
+    @ColumnInfo(name = "is_favorite") val isFavorite: Boolean = false,
     @ColumnInfo(name = "created_at") val createdAt: Long
 )

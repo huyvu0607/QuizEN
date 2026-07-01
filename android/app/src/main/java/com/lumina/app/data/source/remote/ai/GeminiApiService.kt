@@ -32,4 +32,9 @@ data class Candidate(val content: ContentResponse)
 data class ContentResponse(val parts: List<Part>)
 
 data class ModelListResponse(val models: List<ModelInfo>)
-data class ModelInfo(val name: String, val version: String, val displayName: String)
+data class ModelInfo(
+    val name: String,
+    val version: String,
+    val displayName: String,
+    val supportedGenerationMethods: List<String>?
+)

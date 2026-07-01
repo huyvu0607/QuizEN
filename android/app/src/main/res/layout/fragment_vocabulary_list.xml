@@ -73,12 +73,27 @@
                 app:layout_constraintTop_toTopOf="@id/tvLessonTitle"
                 app:tint="@color/text_primary" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnFlashcard"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Flashcard bài học này"
+                android:textAllCaps="false"
+                android:textColor="@color/colorPrimary"
+                app:icon="@drawable/ic_layers"
+                app:iconGravity="textStart"
+                app:iconTint="@color/colorPrimary"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvLessonStats" />
+
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipGroupFilters"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                app:layout_constraintTop_toBottomOf="@id/tvLessonStats"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@id/btnFlashcard"
                 app:singleSelection="true">
 
                 <com.google.android.material.chip.Chip

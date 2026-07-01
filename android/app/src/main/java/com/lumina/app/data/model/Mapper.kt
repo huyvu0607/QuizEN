@@ -96,6 +96,7 @@ fun VocabularyEntity.toModel() = Vocabulary(
     wordType = wordType?.let { WordType.valueOf(it) },
     imageUrl = imageUrl,
     audioUrl = audioUrl,
+    isFavorite = isFavorite,
     createdAt = createdAt
 )
 
@@ -109,6 +110,7 @@ fun Vocabulary.toEntity() = VocabularyEntity(
     wordType = wordType?.name,
     imageUrl = imageUrl,
     audioUrl = audioUrl,
+    isFavorite = isFavorite,
     createdAt = createdAt
 )
 

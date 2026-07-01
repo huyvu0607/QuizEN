@@ -4,22 +4,52 @@ package com.lumina.app.data.repository
 import com.lumina.app.data.model.*
 import com.lumina.app.data.source.local.dao.UserDao
 import com.lumina.app.data.source.local.entity.UserBadgeEntity
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class UserRepository(private val userDao: UserDao) {
+class UserRepository(
+    private val userDao: UserDao,
+    private val firestoreSync: FirestoreSyncManager? = null
+) {
 
     suspend fun getUserById(userId: Long): User? =
         userDao.getUserById(userId)?.toModel()
 
+    fun getUserByIdFlow(userId: Long): Flow<User?> =
+        userDao.getUserByIdFlow(userId).map { it?.toModel() }
+
     suspend fun getUserByEmail(email: String): User? =
         userDao.getUserByEmail(email)?.toModel()
 
-    suspend fun insertUser(user: User) =
+    suspend fun insertUser(user: User) {
         userDao.insertUser(user.toEntity())
+        syncUserToCloud(user)
+    }
 
-    suspend fun updateUser(user: User) =
+    suspend fun updateUser(user: User) {
         userDao.updateUser(user.toEntity())
+        syncUserToCloud(user)
+    }
+
+    private suspend fun syncUserToCloud(user: User) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null && firestoreSync != null) {
+            try {
+                firestoreSync.syncUser(user, uid)
+            } catch (e: Exception) {
+                android.util.Log.e("UserRepository", "Sync user failed", e)
+            }
+        }
+    }
+
+    suspend fun addXp(userId: Long, xpToAdd: Int) {
+        val user = userDao.getUserById(userId)?.toModel()
+        user?.let {
+            val updatedUser = it.copy(totalXp = it.totalXp + xpToAdd)
+            updateUser(updatedUser)
+        }
+    }
 
     /**
      * Lưu/cập nhật User local (Room) ngay sau khi đăng nhập/đăng ký thành công qua Firebase Auth.

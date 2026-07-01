@@ -8,7 +8,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.lumina.app.R
+import com.lumina.app.data.repository.FirestoreSyncManager
 import com.lumina.app.data.repository.HomeRepository
+import com.lumina.app.data.repository.UserRepository
 import com.lumina.app.data.source.local.AppDatabase
 import com.lumina.app.data.source.local.pref.SessionManager
 import com.lumina.app.databinding.FragmentHomeBinding
@@ -31,7 +33,12 @@ class HomeFragment : Fragment() {
             database.quizDao()
         )
         val sessionManager = SessionManager(requireContext())
-        ViewModelFactory(homeRepository = homeRepository, sessionManager = sessionManager)
+        val userRepo = UserRepository(database.userDao(), FirestoreSyncManager())
+        ViewModelFactory(
+            homeRepository = homeRepository, 
+            sessionManager = sessionManager,
+            userRepository = userRepo
+        )
     }
 
     override fun onCreateView(

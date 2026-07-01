@@ -10,6 +10,7 @@ import com.lumina.app.databinding.ItemLessonCardBinding
 
 class LessonAdapter(
     private var items: List<LessonUiItem>,
+    private val onItemClick: (LessonUiItem) -> Unit,
     private val onFlashcardClick: (LessonUiItem) -> Unit,
     private val onQuizClick: (LessonUiItem) -> Unit,
     private val onMoreClick: (View, LessonUiItem) -> Unit
@@ -69,7 +70,7 @@ class LessonAdapter(
             btnFlashcard.setOnClickListener { onFlashcardClick(item) }
             btnQuiz.setOnClickListener { onQuizClick(item) }
             
-            root.setOnClickListener { onQuizClick(item) } // Mặc định bấm vào lesson hiện danh sách từ
+            root.setOnClickListener { onItemClick(item) }
             ivMore.setOnClickListener { onMoreClick(it, item) }
         }
     }

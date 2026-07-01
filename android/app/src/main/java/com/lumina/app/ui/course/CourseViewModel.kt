@@ -210,10 +210,16 @@ class CourseViewModel(
                         status = if (vocab.id % 3 == 0L) VocabularyStatus.LEARNED 
                                  else if (vocab.id % 2 == 0L) VocabularyStatus.NEEDS_REVIEW 
                                  else VocabularyStatus.NOT_STARTED,
-                        isFavorite = vocab.id % 5 == 0L
+                        isFavorite = vocab.isFavorite
                     )
                 }
             }
+        }
+    }
+
+    fun toggleFavorite(vocabId: Long, isFavorite: Boolean) {
+        viewModelScope.launch {
+            repository.toggleFavorite(vocabId, isFavorite)
         }
     }
 

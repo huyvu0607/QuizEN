@@ -30,21 +30,21 @@ class ProfileViewModel(
         if (userId == -1L) return
 
         viewModelScope.launch {
-            val user = userRepository.getUserById(userId)
-            val totalWords = vocabularyDao.countTotalLearned()
-            
-            user?.let {
-                _uiState.value = ProfileUiState(
-                    displayName = it.displayName,
-                    email = it.email,
-                    avatarUrl = it.avatarUrl,
-                    level = it.level.name,
-                    streakDays = it.streakCount,
-                    totalWords = totalWords,
-                    learningDays = 42, // Mock for now
-                    totalXp = it.totalXp,
-                    xpGoal = 50 // Mock
-                )
+            userRepository.getUserByIdFlow(userId).collect { user ->
+                val totalWords = try { vocabularyDao.countTotalLearned() } catch (e: Exception) { 0 }
+                user?.let {
+                    _uiState.value = ProfileUiState(
+                        displayName = it.displayName,
+                        email = it.email,
+                        avatarUrl = it.avatarUrl,
+                        level = it.level.name,
+                        streakDays = it.streakCount,
+                        totalWords = totalWords,
+                        learningDays = 42, // Mock for now
+                        totalXp = it.totalXp,
+                        xpGoal = 50 // Mock
+                    )
+                }
             }
         }
     }

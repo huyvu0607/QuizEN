@@ -41,6 +41,19 @@
             app:layout_constraintStart_toEndOf="@id/ivDragHandle"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageButton
+            android:id="@+id/btnExpand"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_arrow_back"
+            android:rotation="270"
+            app:layout_constraintBottom_toBottomOf="@id/tvGroupName"
+            app:layout_constraintEnd_toStartOf="@id/tvWordCount"
+            app:layout_constraintTop_toTopOf="@id/tvGroupName"
+            app:tint="#94A3B8" />
+
         <TextView
             android:id="@+id/tvWordCount"
             android:layout_width="wrap_content"
@@ -85,12 +98,51 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:visibility="gone"
             app:flexWrap="wrap"
             app:layout_constraintTop_toBottomOf="@id/tvGroupDescription">
 
             <!-- Word Chips -->
 
         </com.google.android.flexbox.FlexboxLayout>
+
+        <!-- Flashcard & Quiz Buttons -->
+        <LinearLayout
+            android:id="@+id/layoutTopicActions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/flexWords">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnFlashcard"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Flashcard"
+                android:textAllCaps="false"
+                android:textColor="#0056D2"
+                app:icon="@drawable/ic_layers"
+                app:iconGravity="textStart"
+                app:iconTint="#0056D2" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnQuiz"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Làm Quiz"
+                android:textAllCaps="false"
+                android:textColor="#15803D"
+                app:icon="@drawable/ic_trophy"
+                app:iconGravity="textStart"
+                app:iconTint="#15803D" />
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
