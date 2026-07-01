@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import com.lumina.app.data.source.remote.ai.*
 
 class GeminiTest {
-    private val apiKey = "AIzaSyDFwEGCDTt-Qm_77aQ6qkK-QGEzZIKE8yQ"
+    private val apiKey = "{your API key}"
 
     @Test
     fun findWorkingModel() = runBlocking {
