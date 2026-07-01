@@ -47,7 +47,8 @@ class VocabularyListFragment : Fragment(), TextToSpeech.OnInitListener {
             vocabularyDao = database.vocabularyDao(),
             topicGroupDao = database.topicGroupDao(),
             dictionaryApiService = DictionaryApiService.create(),
-            geminiService = GeminiService(BuildConfig.GEMINI_API_KEY)
+            geminiService = GeminiService(BuildConfig.GEMINI_API_KEY),
+            firestoreSync = com.lumina.app.data.repository.FirestoreSyncManager()
         )
         val sessionManager = SessionManager(requireContext())
         ViewModelFactory(courseRepository = repository, sessionManager = sessionManager)

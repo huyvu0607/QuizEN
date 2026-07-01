@@ -188,8 +188,11 @@ class TopicGroupFragment : Fragment() {
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.topicGroups.collectLatest { groups ->
-                if (groups.isEmpty() && !viewModel.isLoadingAiGrouping.value) {
-                    // Nếu chưa có nhóm nào, tự động kích hoạt AI lần đầu
+                if (groups.isEmpty() && 
+                    !viewModel.isLoadingAiGrouping.value && 
+                    viewModel.errorAi.value == null &&
+                    !viewModel.isUnitAlreadyGrouped(unitId)) {
+                    // Chỉ tự động kích hoạt AI lần đầu tiên cho Unit này
                     viewModel.triggerAiGrouping(unitId)
                 }
                 (binding.rvTopicGroups.adapter as? TopicGroupAdapter)?.updateData(groups)
@@ -204,6 +207,15 @@ class TopicGroupFragment : Fragment() {
                     binding.rvTopicGroups.alpha = 0.5f
                 } else {
                     binding.rvTopicGroups.alpha = 1.0f
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.errorAi.collectLatest { error ->
+                error?.let {
+                    Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+                    viewModel.clearAiError()
                 }
             }
         }

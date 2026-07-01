@@ -46,7 +46,7 @@ class AuthViewModel(
                     displayName = firebaseUser.displayName ?: email.substringBefore("@"),
                     avatarUrl = firebaseUser.photoUrl?.toString()
                 )
-                sessionManager.saveSession(localUser.id, localUser.email)
+                sessionManager.saveSession(localUser.id, localUser.email, firebaseUser.uid)
                 _authState.value = AuthState.Success(localUser)
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(mapAuthError(e))
@@ -73,7 +73,7 @@ class AuthViewModel(
                     level = englishLevel,
                     goal = goal
                 )
-                sessionManager.saveSession(localUser.id, localUser.email)
+                sessionManager.saveSession(localUser.id, localUser.email, firebaseUser.uid)
                 _authState.value = AuthState.Success(localUser)
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(mapAuthError(e))
@@ -92,7 +92,7 @@ class AuthViewModel(
                     displayName = firebaseUser.displayName ?: "Người dùng",
                     avatarUrl = firebaseUser.photoUrl?.toString()
                 )
-                sessionManager.saveSession(localUser.id, localUser.email)
+                sessionManager.saveSession(localUser.id, localUser.email, firebaseUser.uid)
                 _authState.value = AuthState.Success(localUser)
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(e.message ?: "Đăng nhập Google thất bại")

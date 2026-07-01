@@ -385,7 +385,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Học nhanh hơn với các gợi ý AI"
+                        android:text="Hoàn thành các từ vựng để đạt 100%"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp"
                         app:layout_constraintEnd_toEndOf="parent"

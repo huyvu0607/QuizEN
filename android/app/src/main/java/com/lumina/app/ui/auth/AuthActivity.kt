@@ -9,6 +9,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth
 import com.lumina.app.MainActivity
+import com.lumina.app.data.repository.UserRepository
 import com.lumina.app.data.source.local.AppDatabase
 import com.lumina.app.data.source.local.pref.SessionManager
 import com.lumina.app.databinding.ActivityAuthBinding
@@ -33,7 +34,27 @@ class AuthActivity : AppCompatActivity() {
             // 1. Firebase đã login
             // 2. SessionManager có ID
             // 3. Quan trọng nhất: User đó phải có trong Database local (Room)
-            if (firebaseUser != null && sessionManager.isLoggedIn() && userInDb != null) {
+            if (firebaseUser != null && sessionManager.isLoggedIn()) {
+                val userIdToSave: Long
+                val emailToSave: String
+                
+                if (userInDb == null) {
+                    // Nếu user có trong Firebase nhưng chưa có trong Room (ví dụ mới cài lại app)
+                    // Ta tạo lại bản ghi User local từ thông tin Firebase
+                    val userRepository = UserRepository(database.userDao())
+                    val newUser = userRepository.upsertFromAuth(
+                        email = firebaseUser.email ?: "",
+                        displayName = firebaseUser.displayName ?: "Người dùng",
+                        avatarUrl = firebaseUser.photoUrl?.toString()
+                    )
+                    userIdToSave = newUser.id
+                    emailToSave = newUser.email
+                } else {
+                    userIdToSave = userInDb.id
+                    emailToSave = userInDb.email
+                }
+
+                sessionManager.saveSession(userIdToSave, emailToSave, firebaseUser.uid)
                 startActivity(Intent(this@AuthActivity, MainActivity::class.java))
                 finish()
             } else {

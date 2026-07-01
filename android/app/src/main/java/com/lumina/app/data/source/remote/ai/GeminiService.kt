@@ -8,7 +8,7 @@ import kotlinx.coroutines.withContext
 class GeminiService(apiKey: String) {
 
     private val generativeModel = GenerativeModel(
-        modelName = "gemini-1.5-flash",
+        modelName = "gemini-flash-latest",
         apiKey = apiKey,
         generationConfig = generationConfig {
             temperature = 0.2f
@@ -23,7 +23,7 @@ class GeminiService(apiKey: String) {
             val response = generativeModel.generateContent(prompt)
             response.text
         } catch (e: Exception) {
-            e.printStackTrace()
+            android.util.Log.e("GeminiService", "Error generating content: ${e.message}", e)
             null
         }
     }

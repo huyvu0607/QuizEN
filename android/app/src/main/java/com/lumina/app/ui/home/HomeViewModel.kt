@@ -9,6 +9,7 @@ import com.lumina.app.data.repository.HomeRepository
 import com.lumina.app.data.source.local.pref.SessionManager
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 
 class HomeViewModel(
     private val repository: HomeRepository,
@@ -20,4 +21,17 @@ class HomeViewModel(
             repository.getHomeData(userId)
         }.asLiveData(viewModelScope.coroutineContext)
 
+    init {
+        syncFromCloud()
+    }
+
+    private fun syncFromCloud() {
+        viewModelScope.launch {
+            val userId = sessionManager.getUserId()
+            val firebaseUid = sessionManager.getFirebaseUid() ?: com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+            if (userId != -1L && !firebaseUid.isNullOrBlank()) {
+                repository.syncFromCloud(userId, firebaseUid)
+            }
+        }
+    }
 }

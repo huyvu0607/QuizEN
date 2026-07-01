@@ -35,6 +35,9 @@ class CourseViewModel(
     private val _isLoadingAiGrouping = MutableStateFlow(false)
     val isLoadingAiGrouping: StateFlow<Boolean> = _isLoadingAiGrouping.asStateFlow()
 
+    private val _errorAi = MutableStateFlow<String?>(null)
+    val errorAi: StateFlow<String?> = _errorAi.asStateFlow()
+
     private val _currentCourse = MutableLiveData<Course?>()
     val currentCourse: LiveData<Course?> = _currentCourse
 
@@ -52,32 +55,36 @@ class CourseViewModel(
     private fun syncFromCloud() {
         viewModelScope.launch {
             val userId = sessionManager.getUserId()
-            if (userId == -1L) return@launch
-            
+            val firebaseUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+                ?: sessionManager.getFirebaseUid()
+            if (userId == -1L || firebaseUid.isNullOrBlank()) {
+                android.util.Log.w("Sync", "Cloud sync skipped: missing user session or Firebase UID")
+                return@launch
+            }
+
             val firestoreSync = com.lumina.app.data.repository.FirestoreSyncManager()
-            
+
             try {
-                android.util.Log.d("Sync", "Starting deep sync from cloud...")
-                val remoteCourses = firestoreSync.fetchAllCourses(userId)
-                
+                android.util.Log.d("Sync", "Starting deep sync from cloud for uid=$firebaseUid")
+                val remoteCourses = firestoreSync.fetchAllCourses(firebaseUid)
+
                 remoteCourses.forEach { remoteCourse ->
                     val localCourse = repository.getCourseById(remoteCourse.id)
                     if (localCourse == null) {
                         android.util.Log.d("Sync", "Downloading course: ${remoteCourse.title}")
-                        repository.insertCourse(remoteCourse)
-                        
-                        // Tải Units
-                        val remoteUnits = firestoreSync.fetchAllUnits(userId, remoteCourse.id)
+                        repository.insertCourse(remoteCourse.copy(userId = userId))
+
+                        val remoteUnits = firestoreSync.fetchAllUnits(firebaseUid, remoteCourse.id)
                         remoteUnits.forEach { remoteUnit ->
                             repository.insertUnit(remoteUnit)
-                            
-                            // Tải Lessons
-                            val remoteLessons = firestoreSync.fetchAllLessons(userId, remoteCourse.id, remoteUnit.id)
+
+                            val remoteLessons = firestoreSync.fetchAllLessons(firebaseUid, remoteCourse.id, remoteUnit.id)
                             remoteLessons.forEach { remoteLesson ->
                                 repository.insertLesson(remoteLesson)
-                                
-                                // Tải Vocabularies
-                                val remoteVocabs = firestoreSync.fetchAllVocabularies(userId, remoteCourse.id, remoteUnit.id, remoteLesson.id)
+
+                                val remoteVocabs = firestoreSync.fetchAllVocabularies(
+                                    firebaseUid, remoteCourse.id, remoteUnit.id, remoteLesson.id
+                                )
                                 if (remoteVocabs.isNotEmpty()) {
                                     repository.insertVocabularyList(remoteVocabs)
                                 }
@@ -87,7 +94,7 @@ class CourseViewModel(
                 }
                 android.util.Log.d("Sync", "Deep sync completed successfully.")
             } catch (e: Exception) {
-                android.util.Log.e("Sync", "Deep sync failed: ${e.message}")
+                android.util.Log.e("Sync", "Deep sync failed: ${e.message}", e)
             }
         }
     }
@@ -393,12 +400,24 @@ class CourseViewModel(
     fun triggerAiGrouping(unitId: Long) {
         viewModelScope.launch {
             _isLoadingAiGrouping.value = true
+            _errorAi.value = null
             val success = repository.groupVocabularyWithAi(unitId)
             if (success) {
+                sessionManager.setUnitGrouped(unitId, true)
                 loadTopicGroups(unitId)
+            } else {
+                _errorAi.value = "AI hiện không khả dụng. Bạn có thể phân nhóm thủ công."
             }
             _isLoadingAiGrouping.value = false
         }
+    }
+
+    fun isUnitAlreadyGrouped(unitId: Long): Boolean {
+        return sessionManager.isUnitGrouped(unitId)
+    }
+
+    fun clearAiError() {
+        _errorAi.value = null
     }
 
     fun renameTopicGroup(groupId: Long, unitId: Long, newName: String) {

@@ -56,6 +56,8 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:clipChildren="false"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -63,6 +65,8 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:orientation="vertical"
+            android:clipToPadding="false"
+            android:clipChildren="false"
             android:padding="24dp">
 
             <!-- Avatar -->
@@ -140,8 +144,10 @@
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-                    app:strokeWidth="0dp">
+                    app:cardElevation="3dp"
+                    app:cardUseCompatPadding="true"
+                    app:strokeColor="#F1F5F9"
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -180,8 +186,10 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-                    app:strokeWidth="0dp">
+                    app:cardElevation="3dp"
+                    app:cardUseCompatPadding="true"
+                    app:strokeColor="#F1F5F9"
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -221,8 +229,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
+                app:cardElevation="3dp"
+                app:cardUseCompatPadding="true"
+                app:strokeColor="#F1F5F9"
+                app:strokeWidth="1dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -280,10 +290,12 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="24dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
+                app:cardElevation="3dp"
+                app:cardUseCompatPadding="true"
+                app:strokeColor="#F1F5F9"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"

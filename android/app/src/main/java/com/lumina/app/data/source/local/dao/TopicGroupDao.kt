@@ -13,6 +13,10 @@ interface TopicGroupDao {
     @Query("SELECT * FROM topic_groups WHERE unit_id = :unitId ORDER BY order_index ASC")
     fun getGroupsByUnit(unitId: Long): Flow<List<TopicGroupEntity>>
 
+    @Transaction
+    @Query("SELECT * FROM topic_groups WHERE unit_id = :unitId ORDER BY order_index ASC")
+    fun getGroupsWithWordsByUnit(unitId: Long): Flow<List<TopicGroupWithWords>>
+
     @Query("""
         SELECT v.* FROM vocabulary v
         INNER JOIN topic_group_words tgw ON v.id = tgw.vocabulary_id
@@ -51,3 +55,17 @@ interface TopicGroupDao {
     @Query("DELETE FROM topic_group_words WHERE topic_group_id = :groupId")
     suspend fun deleteAllWordsInGroup(groupId: Long)
 }
+
+data class TopicGroupWithWords(
+    @Embedded val group: TopicGroupEntity,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "id",
+        associateBy = Junction(
+            value = TopicGroupWordEntity::class,
+            parentColumn = "topic_group_id",
+            entityColumn = "vocabulary_id"
+        )
+    )
+    val words: List<VocabularyEntity>
+)

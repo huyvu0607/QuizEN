@@ -1,10 +1,13 @@
 package com.lumina.app.data.repository
 
 import com.lumina.app.data.source.local.dao.CourseDao
+import com.lumina.app.data.source.local.dao.LessonDao
 import com.lumina.app.data.source.local.dao.QuizDao
 import com.lumina.app.data.source.local.dao.SrsDao
+import com.lumina.app.data.source.local.dao.UnitDao
 import com.lumina.app.data.source.local.dao.UserDao
 import com.lumina.app.data.source.local.dao.VocabularyDao
+import com.lumina.app.data.model.*
 import com.lumina.app.ui.home.ContinueLearningState
 import com.lumina.app.ui.home.CourseCardState
 import com.lumina.app.ui.home.HomeUiState
@@ -17,6 +20,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class HomeRepository(
     private val userDao: UserDao,
     private val courseDao: CourseDao,
+    private val unitDao: UnitDao,
+    private val lessonDao: LessonDao,
     private val vocabularyDao: VocabularyDao,
     private val srsDao: SrsDao,
     private val quizDao: QuizDao
@@ -78,6 +83,38 @@ class HomeRepository(
                     courses = courseStates
                 ))
             }
+        }
+    }
+
+    suspend fun syncFromCloud(userId: Long, firebaseUid: String) {
+        val firestoreSync = FirestoreSyncManager()
+        try {
+            val remoteCourses = firestoreSync.fetchAllCourses(firebaseUid)
+            remoteCourses.forEach { remoteCourse ->
+                val localCourse = courseDao.getCourseById(remoteCourse.id)
+                if (localCourse == null) {
+                    courseDao.insertCourse(remoteCourse.copy(userId = userId).toEntity())
+
+                    val remoteUnits = firestoreSync.fetchAllUnits(firebaseUid, remoteCourse.id)
+                    remoteUnits.forEach { remoteUnit ->
+                        unitDao.insertUnit(remoteUnit.toEntity())
+
+                        val remoteLessons = firestoreSync.fetchAllLessons(firebaseUid, remoteCourse.id, remoteUnit.id)
+                        remoteLessons.forEach { remoteLesson ->
+                            lessonDao.insertLesson(remoteLesson.toEntity())
+
+                            val remoteVocabs = firestoreSync.fetchAllVocabularies(
+                                firebaseUid, remoteCourse.id, remoteUnit.id, remoteLesson.id
+                            )
+                            if (remoteVocabs.isNotEmpty()) {
+                                vocabularyDao.insertVocabularyList(remoteVocabs.map { it.toEntity() })
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("HomeRepository", "Sync failed: ${e.message}")
         }
     }
 

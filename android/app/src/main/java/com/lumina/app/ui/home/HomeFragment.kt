@@ -24,6 +24,8 @@ class HomeFragment : Fragment() {
         val homeRepository = HomeRepository(
             database.userDao(),
             database.courseDao(),
+            database.unitDao(),
+            database.lessonDao(),
             database.vocabularyDao(),
             database.srsDao(),
             database.quizDao()

@@ -11,13 +11,15 @@ class SessionManager(context: Context) {
         private const val KEY_IS_LOGGED_IN = "is_logged_in"
         private const val KEY_USER_ID = "user_id"
         private const val KEY_USER_EMAIL = "user_email"
+        private const val KEY_FIREBASE_UID = "firebase_uid"
     }
 
-    fun saveSession(userId: Long, email: String) {
+    fun saveSession(userId: Long, email: String, firebaseUid: String) {
         prefs.edit().apply {
             putBoolean(KEY_IS_LOGGED_IN, true)
             putLong(KEY_USER_ID, userId)
             putString(KEY_USER_EMAIL, email)
+            putString(KEY_FIREBASE_UID, firebaseUid)
             apply()
         }
     }
@@ -27,6 +29,16 @@ class SessionManager(context: Context) {
     fun getUserId(): Long = prefs.getLong(KEY_USER_ID, -1L)
 
     fun getUserEmail(): String? = prefs.getString(KEY_USER_EMAIL, null)
+
+    fun getFirebaseUid(): String? = prefs.getString(KEY_FIREBASE_UID, null)
+
+    fun isUnitGrouped(unitId: Long): Boolean {
+        return prefs.getBoolean("unit_grouped_$unitId", false)
+    }
+
+    fun setUnitGrouped(unitId: Long, grouped: Boolean) {
+        prefs.edit().putBoolean("unit_grouped_$unitId", grouped).apply()
+    }
 
     fun clearSession() {
         prefs.edit().clear().apply()
