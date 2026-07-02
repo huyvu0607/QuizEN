@@ -12,8 +12,14 @@ data class HomeUiState(
     val goalXp: Int = 500,
     val continueLearning: ContinueLearningState? = null,
     val reviewWordsCount: Int = 0,
-    val courses: List<CourseCardState> = emptyList()
+    val courses: List<CourseCardState> = emptyList(),
+    val syncStatus: SyncStatus = SyncStatus.IDLE,
+    val syncProgress: Int = 0 // 0-100
 )
+
+enum class SyncStatus {
+    IDLE, SYNCING, PAUSED, COMPLETED, ERROR
+}
 
 data class ContinueLearningState(
     val courseTitle: String,

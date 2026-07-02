@@ -40,9 +40,9 @@ class ProfileViewModel(
                         level = it.level.name,
                         streakDays = it.streakCount,
                         totalWords = totalWords,
-                        learningDays = 42, // Mock for now
+                        learningDays = it.streakCount, // Dùng tạm streakCount thay cho số ngày học thực tế
                         totalXp = it.totalXp,
-                        xpGoal = 50 // Mock
+                        xpGoal = it.goal.toIntOrNull() ?: 50
                     )
                 }
             }

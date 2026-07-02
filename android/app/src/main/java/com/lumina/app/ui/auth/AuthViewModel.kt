@@ -20,6 +20,7 @@ sealed class AuthState {
     object Loading : AuthState()
     data class Success(val user: User) : AuthState()
     data class Error(val message: String) : AuthState()
+    object ResetEmailSent : AuthState()
 }
 
 class AuthViewModel(
@@ -109,6 +110,26 @@ class AuthViewModel(
             // _authState.value = AuthState.Success(guest)
             _authState.value = AuthState.Error("Chức năng khách đang được phát triển")
         }
+    }
+
+    fun resetPassword(email: String) {
+        if (email.isBlank()) {
+            _authState.value = AuthState.Error("Vui lòng nhập email")
+            return
+        }
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            try {
+                authRepository.sendPasswordResetEmail(email)
+                _authState.value = AuthState.ResetEmailSent
+            } catch (e: Exception) {
+                _authState.value = AuthState.Error(mapAuthError(e))
+            }
+        }
+    }
+
+    fun resetState() {
+        _authState.value = AuthState.Idle
     }
 
     private fun mapAuthError(e: Exception): String = when (e) {

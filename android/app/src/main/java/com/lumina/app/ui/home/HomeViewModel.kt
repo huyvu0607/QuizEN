@@ -34,4 +34,13 @@ class HomeViewModel(
             }
         }
     }
+
+    fun pauseSync() {
+        repository.pauseSync()
+    }
+
+    fun resumeSync() {
+        repository.resumeSync()
+        syncFromCloud()
+    }
 }

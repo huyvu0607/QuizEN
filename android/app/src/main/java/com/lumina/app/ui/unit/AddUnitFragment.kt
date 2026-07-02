@@ -36,6 +36,7 @@ class AddUnitFragment : Fragment() {
     }
 
     private var courseId: Long = -1
+    private var selectedIcon: String? = "plane"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -61,6 +62,8 @@ class AddUnitFragment : Fragment() {
         binding.gridIcons.children.forEach { child ->
             if (child is FrameLayout) {
                 child.setOnClickListener {
+                    selectedIcon = child.tag?.toString() ?: "plane"
+
                     // Reset all icons
                     binding.gridIcons.children.forEach { other ->
                         if (other is FrameLayout) {
@@ -84,6 +87,19 @@ class AddUnitFragment : Fragment() {
                 binding.etCourseName.setText(it.title)
             }
         }
+
+        viewModel.saveResult.observe(viewLifecycleOwner) { result ->
+            result?.let {
+                if (it.isSuccess) {
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                } else {
+                    val msg = it.exceptionOrNull()?.message ?: "Lỗi khi lưu Unit"
+                    android.widget.Toast.makeText(requireContext(), msg, android.widget.Toast.LENGTH_SHORT).show()
+                    binding.btnSave.isEnabled = true
+                }
+                viewModel.clearSaveResult()
+            }
+        }
     }
 
     private fun setupListeners() {
@@ -104,8 +120,8 @@ class AddUnitFragment : Fragment() {
             val order = 1
             
             if (title.isNotEmpty() && courseId != -1L) {
-                viewModel.addUnit(courseId, title, order)
-                requireActivity().onBackPressedDispatcher.onBackPressed()
+                binding.btnSave.isEnabled = false
+                viewModel.addUnit(courseId, title, selectedIcon, order)
             }
         }
     }

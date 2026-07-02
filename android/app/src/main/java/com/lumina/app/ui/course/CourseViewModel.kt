@@ -144,6 +144,7 @@ class CourseViewModel(
                             index == 1 -> UnitStatus.IN_PROGRESS
                             else -> UnitStatus.LOCKED
                         },
+                        icon = unit.icon,
                         wordCount = wordCount,
                         lessonCount = lessonCount
                     ))
@@ -174,7 +175,8 @@ class CourseViewModel(
                         subtitle = "$wordCount từ vựng",
                         status = status,
                         progress = if (wordCount > 0) (learnedCount * 100) / wordCount else 0,
-                        iconRes = getIconResForLesson(lesson.id.toInt()),
+                        iconKey = lesson.icon,
+                        iconRes = getIconRes(lesson.icon),
                         wordCount = wordCount
                     ))
                 }
@@ -223,18 +225,23 @@ class CourseViewModel(
         }
     }
 
-    fun addLesson(unitId: Long, title: String, orderIndex: Int) {
+    fun addLesson(unitId: Long, title: String, icon: String?, orderIndex: Int) {
         viewModelScope.launch {
-            val newLesson = Lesson(
-                id = 0,
-                unitId = unitId,
-                title = title,
-                description = "",
-                orderIndex = orderIndex
-            )
-            repository.insertLesson(newLesson)
-            // Sau khi thêm xong, reload lại danh sách bài học của unit này
-            loadLessons(unitId)
+            try {
+                val newLesson = Lesson(
+                    id = 0,
+                    unitId = unitId,
+                    title = title,
+                    description = "",
+                    icon = icon,
+                    orderIndex = orderIndex
+                )
+                repository.insertLesson(newLesson)
+                _saveResult.value = Result.success(Unit)
+                loadLessons(unitId)
+            } catch (e: Exception) {
+                _saveResult.value = Result.failure(e)
+            }
         }
     }
 
@@ -310,15 +317,42 @@ class CourseViewModel(
         }
     }
 
-    fun addUnit(courseId: Long, title: String, orderIndex: Int) {
+    fun addUnit(courseId: Long, title: String, icon: String?, orderIndex: Int) {
         viewModelScope.launch {
-            val newUnit = StudyUnit(
-                id = 0,
-                courseId = courseId,
-                title = title,
-                orderIndex = orderIndex
-            )
-            repository.insertUnit(newUnit)
+            try {
+                val newUnit = StudyUnit(
+                    id = 0,
+                    courseId = courseId,
+                    title = title,
+                    icon = icon,
+                    orderIndex = orderIndex
+                )
+                repository.insertUnit(newUnit)
+                _saveResult.value = Result.success(Unit)
+            } catch (e: Exception) {
+                _saveResult.value = Result.failure(e)
+            }
+        }
+    }
+
+    fun updateUnit(unitId: Long, newTitle: String) {
+        viewModelScope.launch {
+            repository.getUnitById(unitId)?.let {
+                val updated = it.copy(title = newTitle)
+                repository.updateUnit(updated)
+                // Reload current course units if needed
+                _currentCourse.value?.let { course -> loadUnits(course.id) }
+            }
+        }
+    }
+
+    fun deleteUnit(unitId: Long) {
+        viewModelScope.launch {
+            repository.getUnitById(unitId)?.let {
+                repository.deleteUnit(it)
+                // Notify UI or redirect if necessary. 
+                // In UnitDetailFragment, this might mean navigating back.
+            }
         }
     }
 
@@ -341,39 +375,54 @@ class CourseViewModel(
 
     fun addVocabulary(lessonId: Long, word: String, meaning: String, example: String?, ipa: String?, type: WordType?) {
         viewModelScope.launch {
-            val vocab = Vocabulary(
-                id = 0,
-                lessonId = lessonId,
-                word = word,
-                meaning = meaning,
-                exampleSentence = example,
-                ipa = ipa,
-                wordType = type,
-                createdAt = System.currentTimeMillis()
-            )
-            repository.insertVocabulary(vocab)
+            try {
+                val vocab = Vocabulary(
+                    id = 0,
+                    lessonId = lessonId,
+                    word = word,
+                    meaning = meaning,
+                    exampleSentence = example,
+                    ipa = ipa,
+                    wordType = type,
+                    createdAt = System.currentTimeMillis()
+                )
+                repository.insertVocabulary(vocab)
+                _saveResult.value = Result.success(Unit)
+            } catch (e: Exception) {
+                _saveResult.value = Result.failure(e)
+            }
         }
     }
 
     fun bulkInsertVocabulary(vocabs: List<Vocabulary>) {
         viewModelScope.launch {
-            repository.insertVocabularyList(vocabs)
+            try {
+                repository.insertVocabularyList(vocabs)
+                _saveResult.value = Result.success(Unit)
+            } catch (e: Exception) {
+                _saveResult.value = Result.failure(e)
+            }
         }
     }
 
     fun updateVocabulary(vocabId: Long, lessonId: Long, word: String, meaning: String, example: String?, ipa: String?, type: WordType?) {
         viewModelScope.launch {
-            val vocab = Vocabulary(
-                id = vocabId,
-                lessonId = lessonId,
-                word = word,
-                meaning = meaning,
-                exampleSentence = example,
-                ipa = ipa,
-                wordType = type,
-                createdAt = System.currentTimeMillis()
-            )
-            repository.updateVocabulary(vocab)
+            try {
+                val vocab = Vocabulary(
+                    id = vocabId,
+                    lessonId = lessonId,
+                    word = word,
+                    meaning = meaning,
+                    exampleSentence = example,
+                    ipa = ipa,
+                    wordType = type,
+                    createdAt = System.currentTimeMillis()
+                )
+                repository.updateVocabulary(vocab)
+                _saveResult.value = Result.success(Unit)
+            } catch (e: Exception) {
+                _saveResult.value = Result.failure(e)
+            }
         }
     }
 
@@ -454,6 +503,18 @@ class CourseViewModel(
         }
     }
 
+    fun deleteVocabulary(vocabId: Long) {
+        viewModelScope.launch {
+            try {
+                repository.getVocabularyById(vocabId)?.let {
+                    repository.deleteVocabulary(it)
+                }
+            } catch (e: Exception) {
+                // Log error
+            }
+        }
+    }
+
     private fun getIconRes(iconKey: String?): Int {
         return when (iconKey) {
             "book" -> com.lumina.app.R.drawable.ic_book
@@ -463,6 +524,8 @@ class CourseViewModel(
             "globe" -> com.lumina.app.R.drawable.ic_globe
             "briefcase" -> com.lumina.app.R.drawable.ic_briefcase
             "plane" -> com.lumina.app.R.drawable.ic_plane
+            "flame" -> com.lumina.app.R.drawable.ic_flame
+            "sparkle" -> com.lumina.app.R.drawable.ic_sparkle
             else -> com.lumina.app.R.drawable.ic_book
         }
     }

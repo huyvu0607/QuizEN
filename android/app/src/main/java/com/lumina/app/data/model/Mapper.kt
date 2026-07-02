@@ -58,6 +58,7 @@ fun StudyUnitEntity.toModel() = StudyUnit(
     id = id,
     courseId = courseId,
     title = title,
+    icon = icon,
     orderIndex = orderIndex
 )
 
@@ -65,6 +66,7 @@ fun StudyUnit.toEntity() = StudyUnitEntity(
     id = id,
     courseId = courseId,
     title = title,
+    icon = icon,
     orderIndex = orderIndex
 )
 
@@ -74,6 +76,7 @@ fun LessonEntity.toModel() = Lesson(
     unitId = unitId,
     title = title,
     description = description,
+    icon = icon,
     orderIndex = orderIndex
 )
 
@@ -82,6 +85,7 @@ fun Lesson.toEntity() = LessonEntity(
     unitId = unitId,
     title = title,
     description = description,
+    icon = icon,
     orderIndex = orderIndex
 )
 

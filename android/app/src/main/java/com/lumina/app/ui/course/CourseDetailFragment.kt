@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.lumina.app.R
@@ -18,6 +19,7 @@ import com.lumina.app.data.source.local.pref.SessionManager
 import com.lumina.app.databinding.FragmentCourseDetailBinding
 import com.lumina.app.viewmodel.ViewModelFactory
 import com.lumina.app.ui.unit.UnitAdapter
+import com.lumina.app.ui.unit.UnitItem
 import com.lumina.app.ui.unit.UnitStatus
 import kotlinx.coroutines.launch
 
@@ -39,6 +41,7 @@ class CourseDetailFragment : Fragment() {
     }
 
     private var courseId: Long = -1
+    private var isEditUnitsMode = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -63,14 +66,51 @@ class CourseDetailFragment : Fragment() {
     private fun setupRecyclerView() {
         binding.rvUnits.apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = UnitAdapter(emptyList()) { unit ->
-                val bundle = Bundle().apply {
-                    putLong("unit_id", unit.id.toLong())
-                    putString("unit_title", unit.title)
+            adapter = UnitAdapter(
+                items = emptyList(),
+                onItemClick = { unit ->
+                    val bundle = Bundle().apply {
+                        putLong("unit_id", unit.id.toLong())
+                        putString("unit_title", unit.title)
+                    }
+                    findNavController().navigate(R.id.unitDetailFragment, bundle)
+                },
+                onEditClick = { unit ->
+                    showEditUnitDialog(unit)
+                },
+                onDeleteClick = { unit ->
+                    showDeleteUnitConfirmDialog(unit)
                 }
-                findNavController().navigate(R.id.unitDetailFragment, bundle)
-            }
+            )
         }
+    }
+
+    private fun showEditUnitDialog(unit: UnitItem) {
+        val input = android.widget.EditText(requireContext()).apply {
+            setText(unit.title)
+        }
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Sửa tên Unit")
+            .setView(input)
+            .setPositiveButton("Lưu") { _, _ ->
+                val newTitle = input.text.toString().trim()
+                if (newTitle.isNotEmpty()) {
+                    viewModel.updateUnit(unit.id.toLong(), newTitle)
+                }
+            }
+            .setNegativeButton("Hủy", null)
+            .show()
+    }
+
+    private fun showDeleteUnitConfirmDialog(unit: UnitItem) {
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Xóa Unit")
+            .setMessage("Bạn có chắc chắn muốn xóa Unit '${unit.title}'? Tất cả bài học bên trong sẽ bị mất.")
+            .setPositiveButton("Xóa") { _, _ ->
+                viewModel.deleteUnit(unit.id.toLong())
+            }
+            .setNegativeButton("Hủy", null)
+            .show()
     }
 
     private fun observeViewModel() {
@@ -112,6 +152,20 @@ class CourseDetailFragment : Fragment() {
     private fun setupListeners() {
         binding.ivBack.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
+
+        binding.ivEditCourse.setOnClickListener {
+            isEditUnitsMode = !isEditUnitsMode
+            (binding.rvUnits.adapter as? UnitAdapter)?.setEditMode(isEditUnitsMode)
+            
+            // Optionally change the icon to indicate mode
+            if (isEditUnitsMode) {
+                binding.ivEditCourse.setImageResource(R.drawable.ic_check_circle)
+                binding.ivEditCourse.setColorFilter(ContextCompat.getColor(requireContext(), R.color.success_green))
+            } else {
+                binding.ivEditCourse.setImageResource(R.drawable.ic_edit)
+                binding.ivEditCourse.clearColorFilter()
+            }
         }
 
         binding.fabAddUnit.setOnClickListener {

@@ -22,12 +22,18 @@ class ViewModelFactory(
     private val courseRepository: CourseRepository? = null,
     private val homeRepository: HomeRepository? = null,
     private val srsRepository: SrsRepository? = null,
-    private val vocabularyDao: com.lumina.app.data.source.local.dao.VocabularyDao? = null
+    private val vocabularyDao: com.lumina.app.data.source.local.dao.VocabularyDao? = null,
+    private val statsRepository: com.lumina.app.data.repository.StatsRepository? = null
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
+            modelClass.isAssignableFrom(com.lumina.app.ui.stats.StatsViewModel::class.java) -> {
+                requireNotNull(statsRepository) { "StatsRepository là bắt buộc" }
+                requireNotNull(sessionManager) { "SessionManager là bắt buộc" }
+                com.lumina.app.ui.stats.StatsViewModel(statsRepository, sessionManager) as T
+            }
             modelClass.isAssignableFrom(HomeViewModel::class.java) -> {
                 requireNotNull(homeRepository) { "HomeRepository là bắt buộc" }
                 requireNotNull(sessionManager) { "SessionManager là bắt buộc" }

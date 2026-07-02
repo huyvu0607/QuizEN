@@ -53,7 +53,7 @@ class AddLessonBottomSheetFragment : BottomSheetDialogFragment() {
             val order = 1 // tilOrder removed from layout
             
             if (title.isNotEmpty() && unitId != -1L) {
-                viewModel.addLesson(unitId, title, order)
+                viewModel.addLesson(unitId, title, null, order)
                 dismiss()
             }
         }

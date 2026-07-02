@@ -7,9 +7,13 @@ import com.lumina.app.data.source.remote.DictionaryApiService
 import com.lumina.app.data.source.remote.DictionaryEntry
 import com.lumina.app.data.source.remote.ai.GeminiService
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -27,17 +31,28 @@ class CourseRepository(
         private const val TAG = "CourseRepository"
     }
 
-    private suspend fun withFirestoreSync(action: suspend (FirestoreSyncManager, String) -> Unit) {
+    // ── Firestore Sync Scope ──
+    // Scope riêng, sống theo vòng đời của Repository (KHÔNG phụ thuộc vào
+    // viewModelScope của bất kỳ Fragment/ViewModel nào gọi vào đây).
+    // Nhờ vậy, nếu người dùng back/đóng màn hình ngay sau khi bấm Lưu,
+    // việc đồng bộ lên Firestore vẫn tiếp tục chạy ngầm cho tới khi xong,
+    // thay vì bị hủy giữa chừng theo Fragment.
+    // SupervisorJob giúp 1 lần sync bị lỗi không làm hỏng/hủy các lần sync khác.
+    private val syncScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    private fun withFirestoreSync(action: suspend (FirestoreSyncManager, String) -> Unit) {
         val sync = firestoreSync ?: return
         val firebaseUid = FirebaseAuth.getInstance().currentUser?.uid
         if (firebaseUid.isNullOrBlank()) {
             android.util.Log.w(TAG, "Firestore sync skipped: user not authenticated")
             return
         }
-        try {
-            action(sync, firebaseUid)
-        } catch (e: Exception) {
-            android.util.Log.e(TAG, "Firestore sync failed: ${e.message}", e)
+        syncScope.launch {
+            try {
+                action(sync, firebaseUid)
+            } catch (e: Exception) {
+                android.util.Log.e(TAG, "Firestore sync failed: ${e.message}", e)
+            }
         }
     }
 
@@ -52,23 +67,23 @@ class CourseRepository(
 
     suspend fun groupVocabularyWithAi(unitId: Long): Boolean {
         if (geminiService == null || topicGroupDao == null) return false
-        
+
         try {
             val vocabList = vocabularyDao.getVocabularyByUnit(unitId).first()
             if (vocabList.isEmpty()) {
                 android.util.Log.e("CourseRepository", "No vocabulary found for unit $unitId")
                 return false
             }
-            
+
             val wordStrings = vocabList.map { it.word }
             android.util.Log.d("CourseRepository", "Requesting AI to group ${wordStrings.size} words")
-            
+
             val rawResult = geminiService.groupVocabularyByTopics(wordStrings)
             if (rawResult.isNullOrBlank()) {
                 android.util.Log.e("CourseRepository", "AI returned empty response")
                 return false
             }
-            
+
             android.util.Log.d("CourseRepository", "AI Response: $rawResult")
 
             // Robust extraction: find the first '[' and last ']'
@@ -78,18 +93,18 @@ class CourseRepository(
                 android.util.Log.e("CourseRepository", "Invalid JSON format from AI")
                 return false
             }
-            
+
             val cleanJson = rawResult.substring(start, end + 1)
             val jsonArray = JSONArray(cleanJson)
-            
+
             // Xóa các nhóm cũ của Unit này trước khi tạo mới
             topicGroupDao.deleteGroupsByUnit(unitId)
-            
+
             for (i in 0 until jsonArray.length()) {
                 val groupObj = jsonArray.getJSONObject(i)
                 val groupName = groupObj.getString("name")
                 val wordsInGroup = groupObj.getJSONArray("words")
-                
+
                 val groupEntity = com.lumina.app.data.source.local.entity.TopicGroupEntity(
                     unitId = unitId,
                     name = groupName,
@@ -97,9 +112,9 @@ class CourseRepository(
                     createdAt = System.currentTimeMillis(),
                     orderIndex = i
                 )
-                
+
                 val groupId = topicGroupDao.insertGroup(groupEntity)
-                
+
                 for (j in 0 until wordsInGroup.length()) {
                     val wordStr = wordsInGroup.getString(j)
                     val vocab = vocabList.find { it.word.equals(wordStr, ignoreCase = true) }
@@ -154,13 +169,13 @@ class CourseRepository(
 
     suspend fun getTopicGroupsWithWords(unitId: Long): Flow<List<com.lumina.app.ui.unit.TopicGroupUiItem>> {
         if (topicGroupDao == null) return kotlinx.coroutines.flow.flowOf(emptyList())
-        
+
         return topicGroupDao.getGroupsWithWordsByUnit(unitId).map { list ->
             list.map { item ->
                 val vocabs = item.words.map { it.toModel() }
-                
+
                 // Calculate mastery rate (mock logic for now, should link to SRS)
-                val masteredCount = vocabs.count { it.id % 3 == 0L } 
+                val masteredCount = vocabs.count { it.id % 3 == 0L }
                 val rate = if (vocabs.isNotEmpty()) (masteredCount * 100) / vocabs.size else 0
 
                 com.lumina.app.ui.unit.TopicGroupUiItem(
@@ -218,19 +233,23 @@ class CourseRepository(
         }
     }
 
-    // ── Unit ──
     fun getUnitsByCourse(courseId: Long): Flow<List<StudyUnit>> =
         unitDao.getUnitsByCourse(courseId).map { list ->
             list.map { it.toModel() }
         }
 
+    suspend fun getUnitById(unitId: Long): StudyUnit? =
+        unitDao.getUnitById(unitId)?.toModel()
+
     suspend fun insertUnit(unit: StudyUnit): Long {
         val id = unitDao.insertUnit(unit.toEntity())
-        if (id > 0) {
+        val finalUnit = unit.copy(id = id)
+        
+        // Launch sync in background scope immediately to avoid cancellation if UI closes
+        withFirestoreSync { sync, uid ->
             getCourseById(unit.courseId)?.let { course ->
-                withFirestoreSync { sync, uid ->
-                    sync.syncUnit(uid, course.id, unit.copy(id = id))
-                }
+                sync.syncCourse(uid, course)
+                sync.syncUnit(uid, course.id, finalUnit)
             }
         }
         return id
@@ -238,8 +257,9 @@ class CourseRepository(
 
     suspend fun updateUnit(unit: StudyUnit) {
         unitDao.updateUnit(unit.toEntity())
-        getCourseById(unit.courseId)?.let { course ->
-            withFirestoreSync { sync, uid ->
+        withFirestoreSync { sync, uid ->
+            getCourseById(unit.courseId)?.let { course ->
+                sync.syncCourse(uid, course)
                 sync.syncUnit(uid, course.id, unit)
             }
         }
@@ -268,13 +288,13 @@ class CourseRepository(
 
     suspend fun insertLesson(lesson: Lesson): Long {
         val id = lessonDao.insertLesson(lesson.toEntity())
-        if (id > 0) {
-            val unit = unitDao.getUnitById(lesson.unitId)?.toModel()
-            unit?.let { u ->
+        val finalLesson = lesson.copy(id = id)
+        
+        withFirestoreSync { sync, uid ->
+            unitDao.getUnitById(lesson.unitId)?.toModel()?.let { u ->
                 getCourseById(u.courseId)?.let { course ->
-                    withFirestoreSync { sync, uid ->
-                        sync.syncLesson(uid, course.id, u.id, lesson.copy(id = id))
-                    }
+                    sync.syncUnit(uid, course.id, u)
+                    sync.syncLesson(uid, course.id, u.id, finalLesson)
                 }
             }
         }
@@ -283,10 +303,9 @@ class CourseRepository(
 
     suspend fun updateLesson(lesson: Lesson) {
         lessonDao.updateLesson(lesson.toEntity())
-        val unit = unitDao.getUnitById(lesson.unitId)?.toModel()
-        unit?.let { u ->
-            getCourseById(u.courseId)?.let { course ->
-                withFirestoreSync { sync, uid ->
+        withFirestoreSync { sync, uid ->
+            unitDao.getUnitById(lesson.unitId)?.toModel()?.let { u ->
+                getCourseById(u.courseId)?.let { course ->
                     sync.syncLesson(uid, course.id, u.id, lesson)
                 }
             }
@@ -360,7 +379,10 @@ class CourseRepository(
 
     suspend fun toggleFavorite(vocabId: Long, isFavorite: Boolean) {
         vocabularyDao.updateFavorite(vocabId, isFavorite)
-        // Optionally sync to Firestore if needed
+
+        // Đồng bộ trạng thái yêu thích lên Firestore
+        val vocab = vocabularyDao.getVocabularyById(vocabId)?.toModel()
+        vocab?.let { syncVocabToFirestore(it) }
     }
 
     suspend fun deleteVocabulary(vocab: Vocabulary) {
@@ -378,13 +400,15 @@ class CourseRepository(
         }
     }
 
-    private suspend fun syncVocabToFirestore(vocab: Vocabulary) {
-        val lesson = lessonDao.getLessonById(vocab.lessonId)?.toModel()
-        lesson?.let { l ->
-            val unit = unitDao.getUnitById(l.unitId)?.toModel()
-            unit?.let { u ->
-                getCourseById(u.courseId)?.let { course ->
-                    withFirestoreSync { sync, uid ->
+    private fun syncVocabToFirestore(vocab: Vocabulary) {
+        withFirestoreSync { sync, uid ->
+            lessonDao.getLessonById(vocab.lessonId)?.toModel()?.let { l ->
+                unitDao.getUnitById(l.unitId)?.toModel()?.let { u ->
+                    getCourseById(u.courseId)?.let { course ->
+                        // Đảm bảo toàn bộ cấu trúc cha-con đều có dữ liệu
+                        sync.syncCourse(uid, course)
+                        sync.syncUnit(uid, course.id, u)
+                        sync.syncLesson(uid, course.id, u.id, l)
                         sync.syncVocabulary(uid, course.id, u.id, l.id, vocab)
                     }
                 }

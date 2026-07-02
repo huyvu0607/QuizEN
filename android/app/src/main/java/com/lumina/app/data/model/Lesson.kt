@@ -5,5 +5,6 @@ data class Lesson(
     val unitId: Long,
     val title: String,
     val description: String? = null,
+    val icon: String? = null,
     val orderIndex: Int
 )

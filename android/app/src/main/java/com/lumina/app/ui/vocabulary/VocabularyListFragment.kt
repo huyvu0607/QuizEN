@@ -14,6 +14,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import androidx.navigation.fragment.findNavController
 import com.lumina.app.BuildConfig
 import com.lumina.app.R
@@ -79,25 +81,54 @@ class VocabularyListFragment : Fragment(), TextToSpeech.OnInitListener {
     }
 
     private fun setupRecyclerView() {
+        val vocabAdapter = VocabularyAdapter(
+            emptyList(),
+            onAudioClick = { vocab ->
+                speak(vocab.word, vocab.audioUrl)
+            },
+            onFavoriteClick = { vocab ->
+                viewModel.toggleFavorite(vocab.id, !vocab.isFavorite)
+            },
+            onItemClick = { vocab ->
+                val bundle = Bundle().apply {
+                    putLong("lesson_id", lessonId)
+                    putLong("vocabulary_id", vocab.id)
+                }
+                findNavController().navigate(R.id.addVocabularyFragment, bundle)
+            }
+        )
+
         binding.rvVocabulary.apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = VocabularyAdapter(
-                emptyList(),
-                onAudioClick = { vocab ->
-                    speak(vocab.word, vocab.audioUrl)
-                },
-                onFavoriteClick = { vocab ->
-                    viewModel.toggleFavorite(vocab.id, !vocab.isFavorite)
-                },
-                onItemClick = { vocab ->
-                    val bundle = Bundle().apply {
-                        putLong("lesson_id", lessonId)
-                        putLong("vocabulary_id", vocab.id)
-                    }
-                    findNavController().navigate(R.id.addVocabularyFragment, bundle)
-                }
-            )
+            adapter = vocabAdapter
         }
+
+        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.bindingAdapterPosition
+                val item = vocabAdapter.getItem(position)
+                
+                // Confirm delete
+                com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Xóa từ vựng")
+                    .setMessage("Bạn có chắc chắn muốn xóa từ '${item.word}' không?")
+                    .setPositiveButton("Xóa") { _, _ ->
+                        viewModel.deleteVocabulary(item.id)
+                        vocabAdapter.removeItem(position)
+                        Toast.makeText(requireContext(), "Đã xóa '${item.word}'", Toast.LENGTH_SHORT).show()
+                    }
+                    .setNegativeButton("Hủy") { _, _ ->
+                        vocabAdapter.notifyItemChanged(position)
+                    }
+                    .setOnCancelListener {
+                        vocabAdapter.notifyItemChanged(position)
+                    }
+                    .show()
+            }
+        })
+        itemTouchHelper.attachToRecyclerView(binding.rvVocabulary)
     }
 
     private fun observeViewModel() {

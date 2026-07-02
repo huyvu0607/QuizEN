@@ -77,4 +77,9 @@ class AuthRepository(private val context: Context) {
     fun logout() {
         firebaseAuth.signOut()
     }
+
+    /** Gửi email đặt lại mật khẩu. */
+    suspend fun sendPasswordResetEmail(email: String) {
+        firebaseAuth.sendPasswordResetEmail(email).await()
+    }
 }

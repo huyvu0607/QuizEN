@@ -118,12 +118,12 @@
                 android:columnCount="4"
                 app:layout_constraintTop_toBottomOf="@id/tvIconLabel">
 
-                <!-- Placeholder for icons - in real app would use a RecyclerView or dynamic views -->
                 <FrameLayout
                     android:layout_width="0dp"
                     android:layout_height="70dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="4dp"
+                    android:tag="plane"
                     android:background="@drawable/bg_icon_selected_border">
                     <ImageView
                         android:layout_width="24dp"
@@ -138,6 +138,7 @@
                     android:layout_height="70dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="4dp"
+                    android:tag="briefcase"
                     android:background="@drawable/bg_icon_square_gray">
                     <ImageView
                         android:layout_width="24dp"
@@ -152,6 +153,7 @@
                     android:layout_height="70dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="4dp"
+                    android:tag="book"
                     android:background="@drawable/bg_icon_square_gray">
                     <ImageView
                         android:layout_width="24dp"
@@ -166,6 +168,7 @@
                     android:layout_height="70dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="4dp"
+                    android:tag="globe"
                     android:background="@drawable/bg_icon_square_gray">
                     <ImageView
                         android:layout_width="24dp"
@@ -180,6 +183,7 @@
                     android:layout_height="70dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="4dp"
+                    android:tag="flame"
                     android:background="@drawable/bg_icon_square_gray">
                     <ImageView
                         android:layout_width="24dp"
@@ -194,6 +198,7 @@
                     android:layout_height="70dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="4dp"
+                    android:tag="star"
                     android:background="@drawable/bg_icon_square_gray">
                     <ImageView
                         android:layout_width="24dp"
@@ -208,6 +213,7 @@
                     android:layout_height="70dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="4dp"
+                    android:tag="trophy"
                     android:background="@drawable/bg_icon_square_gray">
                     <ImageView
                         android:layout_width="24dp"
@@ -222,6 +228,7 @@
                     android:layout_height="70dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="4dp"
+                    android:tag="sparkle"
                     android:background="@drawable/bg_icon_square_gray">
                     <ImageView
                         android:layout_width="24dp"

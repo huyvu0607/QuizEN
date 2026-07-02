@@ -63,11 +63,36 @@ class AddVocabularyFragment : Fragment() {
 
         setupWordTypeDropdown()
         setupListeners()
+        observeViewModel()
 
         if (vocabId != -1L) {
             loadVocabData()
             binding.tvTitle.text = "Chỉnh sửa từ vựng"
             binding.btnSaveAndNext.visibility = View.GONE
+        }
+    }
+
+    private fun observeViewModel() {
+        viewModel.saveResult.observe(viewLifecycleOwner) { result ->
+            result?.let {
+                if (it.isSuccess) {
+                    if (binding.btnSaveAndNext.isEnabled == false) {
+                        // This was Save and Next
+                        clearFields()
+                        binding.btnSaveAndNext.isEnabled = true
+                        Toast.makeText(requireContext(), "Đã thêm từ vựng mới!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        // This was normal Save
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
+                    }
+                } else {
+                    val msg = it.exceptionOrNull()?.message ?: "Lỗi khi lưu từ vựng"
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                    binding.btnSave.isEnabled = true
+                    binding.btnSaveAndNext.isEnabled = true
+                }
+                viewModel.clearSaveResult()
+            }
         }
     }
 
@@ -241,17 +266,11 @@ class AddVocabularyFragment : Fragment() {
         }
 
         if (vocabId != -1L) {
+            binding.btnSave.isEnabled = false
             viewModel.updateVocabulary(vocabId, lessonId, word, meaning, example, ipa, type)
-            Toast.makeText(requireContext(), "Đã cập nhật từ vựng!", Toast.LENGTH_SHORT).show()
         } else {
+            if (finish) binding.btnSave.isEnabled = false else binding.btnSaveAndNext.isEnabled = false
             viewModel.addVocabulary(lessonId, word, meaning, example, ipa, type)
-            Toast.makeText(requireContext(), "Đã thêm từ vựng mới!", Toast.LENGTH_SHORT).show()
-        }
-
-        if (finish) {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
-        } else {
-            clearFields()
         }
     }
 

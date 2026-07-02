@@ -10,6 +10,7 @@ data class LessonUiItem(
     val subtitle: String,
     val status: LessonStatus = LessonStatus.NOT_STARTED,
     val progress: Int = 0, // 0-100
+    val iconKey: String? = null,
     val iconRes: Int? = null,
     val wordCount: Int = 0
 )

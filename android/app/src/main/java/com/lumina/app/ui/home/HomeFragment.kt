@@ -68,6 +68,37 @@ class HomeFragment : Fragment() {
         binding.tvGreeting.text = getString(R.string.home_greeting, state.userName) + " 👋"
         binding.tvStreakBadge.text = getString(R.string.home_streak_days, state.streakDays)
 
+        // Sync State UI
+        when (state.syncStatus) {
+            SyncStatus.SYNCING -> {
+                binding.syncProgressCircle.visibility = View.VISIBLE
+                binding.syncProgressCircle.progress = state.syncProgress
+                binding.ivSyncCloud.setImageResource(R.drawable.ic_refresh) // Xoay hoặc mây
+                binding.ivSyncCloud.setColorFilter(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.colorPrimary))
+            }
+            SyncStatus.PAUSED -> {
+                binding.syncProgressCircle.visibility = View.VISIBLE
+                binding.syncProgressCircle.progress = state.syncProgress
+                binding.ivSyncCloud.setImageResource(R.drawable.ic_play)
+                binding.ivSyncCloud.setColorFilter(android.graphics.Color.parseColor("#F59E0B"))
+            }
+            SyncStatus.COMPLETED -> {
+                binding.syncProgressCircle.visibility = View.GONE
+                binding.ivSyncCloud.setImageResource(R.drawable.ic_check_circle)
+                binding.ivSyncCloud.setColorFilter(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.success_green))
+            }
+            SyncStatus.ERROR -> {
+                binding.syncProgressCircle.visibility = View.GONE
+                binding.ivSyncCloud.setImageResource(R.drawable.ic_info)
+                binding.ivSyncCloud.setColorFilter(android.graphics.Color.RED)
+            }
+            SyncStatus.IDLE -> {
+                binding.syncProgressCircle.visibility = View.GONE
+                binding.ivSyncCloud.setImageResource(R.drawable.ic_globe)
+                binding.ivSyncCloud.setColorFilter(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.text_secondary))
+            }
+        }
+
         // Daily goal
         binding.tvXpProgress.text = getString(R.string.home_xp_progress, state.currentXp, state.goalXp)
         setProgressWidth(binding.progressDailyGoal, state.currentXp, state.goalXp)
@@ -84,6 +115,19 @@ class HomeFragment : Fragment() {
         binding.statAccuracy.ivStatIcon.setImageResource(R.drawable.ic_check_circle)
         binding.statAccuracy.tvStatValue.text = "${state.accuracyPercent}%"
         binding.statAccuracy.tvStatLabel.text = getString(R.string.home_accuracy_label)
+
+        // Empty state handling for courses
+        if (state.courses.isEmpty()) {
+            binding.layoutCoursesHeader.visibility = View.GONE
+            binding.hsvCourses.visibility = View.GONE
+            binding.layoutEmptyState.visibility = View.VISIBLE
+            binding.mainContent.root.visibility = View.GONE // Hide "Continue learning" if no courses
+        } else {
+            binding.layoutCoursesHeader.visibility = View.VISIBLE
+            binding.hsvCourses.visibility = View.VISIBLE
+            binding.layoutEmptyState.visibility = View.GONE
+            binding.mainContent.root.visibility = View.VISIBLE
+        }
 
         // Continue learning
         state.continueLearning?.let { course ->
@@ -213,6 +257,33 @@ class HomeFragment : Fragment() {
 
         binding.tvViewAll.setOnClickListener {
             findNavController().navigate(R.id.coursesFragment)
+        }
+
+        binding.layoutSync.setOnClickListener { view ->
+            val popup = androidx.appcompat.widget.PopupMenu(requireContext(), view)
+            val state = viewModel.uiState.value
+            
+            if (state?.syncStatus == SyncStatus.PAUSED) {
+                popup.menu.add("Tiếp tục đồng bộ")
+            } else if (state?.syncStatus == SyncStatus.SYNCING) {
+                popup.menu.add("Tạm dừng đồng bộ")
+            } else {
+                popup.menu.add("Đồng bộ ngay")
+            }
+            
+            popup.setOnMenuItemClickListener { item ->
+                when (item.title) {
+                    "Tiếp tục đồng bộ", "Đồng bộ ngay" -> viewModel.resumeSync()
+                    "Tạm dừng đồng bộ" -> viewModel.pauseSync()
+                }
+                true
+            }
+            popup.show()
+        }
+
+        binding.btnCreateFirstCourse.setOnClickListener {
+            val addCourseSheet = com.lumina.app.ui.course.AddCourseBottomSheetFragment.newInstance()
+            addCourseSheet.show(parentFragmentManager, "AddCourseBottomSheet")
         }
 
         binding.ivSettings.setOnClickListener {

@@ -72,7 +72,9 @@ class FirestoreSyncManager {
     suspend fun syncUnit(firebaseUid: String, courseId: Long, unit: StudyUnit) {
         val unitMap = hashMapOf(
             "title" to unit.title,
-            "orderIndex" to unit.orderIndex
+            "icon" to unit.icon,
+            "orderIndex" to unit.orderIndex,
+            "createdAt" to System.currentTimeMillis()
         )
         db.collection("users").document(firebaseUid)
             .collection("courses").document(courseId.toString())
@@ -86,7 +88,9 @@ class FirestoreSyncManager {
         val lessonMap = hashMapOf(
             "title" to lesson.title,
             "description" to lesson.description,
-            "orderIndex" to lesson.orderIndex
+            "icon" to lesson.icon,
+            "orderIndex" to lesson.orderIndex,
+            "createdAt" to System.currentTimeMillis()
         )
         db.collection("users").document(firebaseUid)
             .collection("courses").document(courseId.toString())
@@ -111,6 +115,7 @@ class FirestoreSyncManager {
             "wordType" to vocab.wordType?.name,
             "exampleSentence" to vocab.exampleSentence,
             "audioUrl" to vocab.audioUrl,
+            "isFavorite" to vocab.isFavorite,
             "createdAt" to vocab.createdAt
         )
         db.collection("users").document(firebaseUid)
@@ -173,6 +178,7 @@ class FirestoreSyncManager {
                     id = id,
                     courseId = courseId,
                     title = doc.getString("title") ?: "",
+                    icon = doc.getString("icon"),
                     orderIndex = doc.getLong("orderIndex")?.toInt() ?: 0
                 )
             }
@@ -195,6 +201,7 @@ class FirestoreSyncManager {
                     unitId = unitId,
                     title = doc.getString("title") ?: "",
                     description = doc.getString("description") ?: "",
+                    icon = doc.getString("icon"),
                     orderIndex = doc.getLong("orderIndex")?.toInt() ?: 0
                 )
             }
@@ -227,6 +234,7 @@ class FirestoreSyncManager {
                     wordType = doc.getString("wordType")?.let { try { WordType.valueOf(it) } catch (e: Exception) { null } },
                     exampleSentence = doc.getString("exampleSentence"),
                     audioUrl = doc.getString("audioUrl"),
+                    isFavorite = doc.getBoolean("isFavorite") ?: false,
                     createdAt = doc.getLong("createdAt") ?: 0L
                 )
             }

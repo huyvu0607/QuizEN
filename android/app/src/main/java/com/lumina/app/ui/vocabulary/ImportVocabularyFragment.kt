@@ -62,10 +62,27 @@ class ImportVocabularyFragment : Fragment() {
 
         setupRecyclerView()
         setupListeners()
+        observeViewModel()
         
         // Initial UI state
         binding.cardPreview.visibility = View.GONE
         binding.cardConfirmImport.visibility = View.GONE
+    }
+
+    private fun observeViewModel() {
+        viewModel.saveResult.observe(viewLifecycleOwner) { result ->
+            result?.let {
+                if (it.isSuccess) {
+                    Toast.makeText(requireContext(), "Đã import thành công!", Toast.LENGTH_SHORT).show()
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                } else {
+                    val msg = it.exceptionOrNull()?.message ?: "Lỗi khi import"
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                    binding.btnConfirmImport.isEnabled = true
+                }
+                viewModel.clearSaveResult()
+            }
+        }
     }
 
     private fun setupRecyclerView() {
@@ -194,12 +211,8 @@ class ImportVocabularyFragment : Fragment() {
 
     private fun importToDatabase() {
         if (parsedVocabs.isEmpty()) return
-        
-        lifecycleScope.launch {
-            viewModel.bulkInsertVocabulary(parsedVocabs)
-            Toast.makeText(requireContext(), "Đã import ${parsedVocabs.size} từ vựng thành công!", Toast.LENGTH_SHORT).show()
-            requireActivity().onBackPressedDispatcher.onBackPressed()
-        }
+        binding.btnConfirmImport.isEnabled = false
+        viewModel.bulkInsertVocabulary(parsedVocabs)
     }
 
     override fun onDestroyView() {

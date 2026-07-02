@@ -126,6 +126,10 @@ class UnitDetailFragment : Fragment() {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
+        binding.ivSettings.setOnClickListener {
+            // Settings logic
+        }
+
         binding.cardAiBanner.setOnClickListener {
             analyzeUnitWithAi()
         }
@@ -139,6 +143,57 @@ class UnitDetailFragment : Fragment() {
                 findNavController().navigate(R.id.addLessonFragment, bundle)
             }
         }
+    }
+
+    private fun showUnitOptionsMenu(view: View) {
+        val popup = PopupMenu(requireContext(), view)
+        popup.menu.add("Sửa tên Unit")
+        popup.menu.add("Xóa Unit")
+        
+        popup.setOnMenuItemClickListener { item ->
+            when (item.title) {
+                "Sửa tên Unit" -> {
+                    showEditUnitDialog()
+                    true
+                }
+                "Xóa Unit" -> {
+                    showDeleteUnitConfirmDialog()
+                    true
+                }
+                else -> false
+            }
+        }
+        popup.show()
+    }
+
+    private fun showEditUnitDialog() {
+        val input = android.widget.EditText(requireContext()).apply {
+            setText(binding.tvUnitTitle.text.toString())
+        }
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Sửa tên Unit")
+            .setView(input)
+            .setPositiveButton("Lưu") { _, _ ->
+                val newTitle = input.text.toString().trim()
+                if (newTitle.isNotEmpty()) {
+                    viewModel.updateUnit(unitId, newTitle)
+                    binding.tvUnitTitle.text = newTitle
+                }
+            }
+            .setNegativeButton("Hủy", null)
+            .show()
+    }
+
+    private fun showDeleteUnitConfirmDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Xóa Unit")
+            .setMessage("Bạn có chắc chắn muốn xóa Unit này không? Tất cả bài học bên trong cũng sẽ bị xóa.")
+            .setPositiveButton("Xóa") { _, _ ->
+                viewModel.deleteUnit(unitId)
+                findNavController().navigateUp()
+            }
+            .setNegativeButton("Hủy", null)
+            .show()
     }
 
     private fun showLessonOptionsMenu(view: View, lesson: LessonUiItem) {

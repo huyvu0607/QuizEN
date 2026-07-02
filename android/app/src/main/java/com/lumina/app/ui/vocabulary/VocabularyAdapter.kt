@@ -11,13 +11,24 @@ class VocabularyAdapter(
     private var items: List<VocabularyUiItem>,
     private val onAudioClick: (VocabularyUiItem) -> Unit,
     private val onFavoriteClick: (VocabularyUiItem) -> Unit,
-    private val onItemClick: (VocabularyUiItem) -> Unit
+    private val onItemClick: (VocabularyUiItem) -> Unit,
+    private val onSwipeDelete: ((VocabularyUiItem) -> Unit)? = null
 ) : RecyclerView.Adapter<VocabularyAdapter.VocabViewHolder>() {
 
     fun updateData(newItems: List<VocabularyUiItem>) {
         items = newItems
         notifyDataSetChanged()
     }
+
+    fun removeItem(position: Int): VocabularyUiItem {
+        val mutableItems = items.toMutableList()
+        val removed = mutableItems.removeAt(position)
+        items = mutableItems
+        notifyItemRemoved(position)
+        return removed
+    }
+
+    fun getItem(position: Int): VocabularyUiItem = items[position]
 
     class VocabViewHolder(val binding: ItemVocabularyCardBinding) : RecyclerView.ViewHolder(binding.root)
 

@@ -41,6 +41,36 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
+            <FrameLayout
+                android:id="@+id/layoutSync"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_toStartOf="@id/ivSettings"
+                android:layout_marginEnd="8dp"
+                android:layout_centerVertical="true">
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/syncProgressCircle"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"
+                    app:indicatorSize="32dp"
+                    app:trackThickness="3dp"
+                    app:indicatorColor="@color/colorPrimary"
+                    app:trackColor="#E2E8F0"
+                    android:max="100"
+                    android:progress="0"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/ivSyncCloud"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_globe"
+                    app:tint="@color/text_secondary" />
+            </FrameLayout>
+
             <ImageView
                 android:id="@+id/ivSettings"
                 android:layout_width="24dp"
@@ -66,7 +96,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Chào buổi sáng, Nam! 👋"
+                android:text="Chào bạn! 👋"
                 android:textColor="@color/text_primary"
                 android:textSize="24sp"
                 android:textStyle="bold" />
@@ -200,6 +230,7 @@
 
         <!-- My courses header -->
         <LinearLayout
+            android:id="@+id/layoutCoursesHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
@@ -228,6 +259,7 @@
 
         <!-- Courses horizontal scroll (2x item_course_card.xml) -->
         <HorizontalScrollView
+            android:id="@+id/hsvCourses"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -250,6 +282,52 @@
 
             </LinearLayout>
         </HorizontalScrollView>
+
+        <!-- Empty State -->
+        <LinearLayout
+            android:id="@+id/layoutEmptyState"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_card_white"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="32dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/ic_book"
+                app:tint="#D1D5DB" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Chưa có khóa học nào"
+                android:textColor="#1E293B"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:text="Hãy tạo khóa học đầu tiên để bắt đầu học nhé!"
+                android:textColor="#64748B"
+                android:textSize="14sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCreateFirstCourse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Tạo khóa học ngay"
+                android:textAllCaps="false"
+                app:cornerRadius="12dp" />
+        </LinearLayout>
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

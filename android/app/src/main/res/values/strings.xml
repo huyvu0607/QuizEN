@@ -23,7 +23,7 @@
     <string name="nav_profile">Profile</string>
 
     <!-- Home screen -->
-    <string name="home_app_title">VocabQuiz</string>
+    <string name="home_app_title">Lumina</string>
     <string name="home_greeting">Chào buổi sáng, %1$s!</string>
     <string name="home_subtitle">Sẵn sàng để học từ mới chưa?</string>
     <string name="home_streak_days">%1$d ngày liên tiếp</string>

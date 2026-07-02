@@ -9,6 +9,7 @@ data class UnitItem(
     val title: String,
     val subtitle: String,
     val status: UnitStatus,
+    val icon: String? = null,
     val wordCount: Int = 0,
     val lessonCount: Int = 0
 )

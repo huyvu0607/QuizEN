@@ -41,6 +41,7 @@ class AddLessonFragment : Fragment() {
     }
 
     private var unitId: Long = -1
+    private var selectedIcon: String? = "plane"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -58,12 +59,30 @@ class AddLessonFragment : Fragment() {
 
         setupIconSelection()
         setupListeners()
+        observeViewModel()
+    }
+
+    private fun observeViewModel() {
+        viewModel.saveResult.observe(viewLifecycleOwner) { result ->
+            result?.let {
+                if (it.isSuccess) {
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                } else {
+                    val msg = it.exceptionOrNull()?.message ?: "Lỗi khi lưu bài học"
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                    binding.btnSave.isEnabled = true
+                }
+                viewModel.clearSaveResult()
+            }
+        }
     }
 
     private fun setupIconSelection() {
         binding.gridIcons.children.forEach { child ->
             if (child is FrameLayout) {
                 child.setOnClickListener {
+                    selectedIcon = child.tag?.toString() ?: "plane"
+
                     // Reset all icons
                     binding.gridIcons.children.forEach { other ->
                         if (other is FrameLayout) {
@@ -95,8 +114,8 @@ class AddLessonFragment : Fragment() {
             val order = 1
             
             if (title.isNotEmpty() && unitId != -1L) {
-                viewModel.addLesson(unitId, title, order)
-                requireActivity().onBackPressedDispatcher.onBackPressed()
+                binding.btnSave.isEnabled = false
+                viewModel.addLesson(unitId, title, selectedIcon, order)
             } else {
                 Toast.makeText(requireContext(), "Vui lòng nhập tên Lesson", Toast.LENGTH_SHORT).show()
             }

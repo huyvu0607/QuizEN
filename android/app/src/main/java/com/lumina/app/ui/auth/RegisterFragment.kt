@@ -91,6 +91,7 @@ class RegisterFragment : Fragment() {
                 is AuthState.Idle -> {
                     binding.btnRegister.isEnabled = true
                 }
+                else -> {}
             }
         }
     }

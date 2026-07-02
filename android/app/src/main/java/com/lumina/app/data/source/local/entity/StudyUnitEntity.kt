@@ -19,5 +19,6 @@ data class StudyUnitEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "course_id", index = true) val courseId: Long,
     @ColumnInfo(name = "title") val title: String,
+    @ColumnInfo(name = "icon") val icon: String? = null,
     @ColumnInfo(name = "order_index") val orderIndex: Int
 )

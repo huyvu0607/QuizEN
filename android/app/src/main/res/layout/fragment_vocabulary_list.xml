@@ -32,12 +32,10 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
                 android:text="Sân bay"
                 android:textColor="@color/colorPrimary"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toStartOf="@id/ivFilter"
                 app:layout_constraintStart_toEndOf="@id/ivBack"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -51,17 +49,6 @@
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="@id/tvLessonTitle"
                 app:layout_constraintTop_toBottomOf="@id/tvLessonTitle" />
-
-            <ImageView
-                android:id="@+id/ivFilter"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="16dp"
-                android:src="@drawable/ic_layers"
-                app:layout_constraintBottom_toBottomOf="@id/tvLessonTitle"
-                app:layout_constraintEnd_toStartOf="@id/ivSettings"
-                app:layout_constraintTop_toTopOf="@id/tvLessonTitle"
-                app:tint="@color/text_primary" />
 
             <ImageView
                 android:id="@+id/ivSettings"

@@ -1,20 +1,12 @@
 package com.lumina.app.data.repository
 
-import com.lumina.app.data.source.local.dao.CourseDao
-import com.lumina.app.data.source.local.dao.LessonDao
-import com.lumina.app.data.source.local.dao.QuizDao
-import com.lumina.app.data.source.local.dao.SrsDao
-import com.lumina.app.data.source.local.dao.UnitDao
-import com.lumina.app.data.source.local.dao.UserDao
-import com.lumina.app.data.source.local.dao.VocabularyDao
+import com.lumina.app.data.source.local.dao.*
 import com.lumina.app.data.model.*
 import com.lumina.app.ui.home.ContinueLearningState
 import com.lumina.app.ui.home.CourseCardState
 import com.lumina.app.ui.home.HomeUiState
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.combine
+import com.lumina.app.ui.home.SyncStatus
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 class HomeRepository(
@@ -27,17 +19,23 @@ class HomeRepository(
     private val quizDao: QuizDao
 ) {
 
+    private val _syncState = MutableStateFlow<Pair<SyncStatus, Int>>(SyncStatus.IDLE to 0)
+    val syncState: StateFlow<Pair<SyncStatus, Int>> = _syncState.asStateFlow()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getHomeData(userId: Long): Flow<HomeUiState> {
         val now = System.currentTimeMillis()
         return combine(
             userDao.getUserByIdFlow(userId),
             courseDao.getCoursesByUser(userId),
-            srsDao.countDueCards(userId, now)
-        ) { user, courses, dueCount ->
-            Triple(user, courses, dueCount)
-        }.flatMapLatest { (user, courses, dueCount) ->
+            srsDao.countDueCards(userId, now),
+            syncState
+        ) { user, courses, dueCount, sync ->
+            val (status, progress) = sync
+            DataBundle(user, courses, dueCount, status, progress)
+        }.flatMapLatest { bundle ->
             flow {
+                val (user, courses, dueCount, status, progress) = bundle
                 val courseStates = courses.take(2).map { course ->
                     val totalWords = vocabularyDao.countByCourse(course.id)
                     val learnedWords = vocabularyDao.countLearnedByCourse(course.id)
@@ -54,8 +52,6 @@ class HomeRepository(
                 }
 
                 val totalLearnedGlobal = vocabularyDao.countTotalLearned()
-                
-                // Tính toán độ chính xác thực tế
                 val totalCorrect = quizDao.getTotalCorrectAnswers(userId) ?: 0
                 val totalQuestions = quizDao.getTotalQuestionsAsked(userId) ?: 0
                 val accuracy = if (totalQuestions > 0) (totalCorrect * 100) / totalQuestions else 0
@@ -70,51 +66,90 @@ class HomeRepository(
                     continueLearning = courses.firstOrNull()?.let {
                         val total = vocabularyDao.countByCourse(it.id)
                         val learned = vocabularyDao.countLearnedByCourse(it.id)
-                        val progress = if (total > 0) (learned * 100) / total else 0
+                        val progressVal = if (total > 0) (learned * 100) / total else 0
                         ContinueLearningState(
                             courseTitle = it.title,
                             level = it.level ?: "N/A",
-                            progressPercent = progress,
+                            progressPercent = progressVal,
                             iconRes = getIconRes(it.coverIcon),
                             coverColor = it.coverColor
                         )
                     },
                     reviewWordsCount = dueCount,
-                    courses = courseStates
+                    courses = courseStates,
+                    syncStatus = status,
+                    syncProgress = progress
                 ))
             }
         }
     }
 
+    private data class DataBundle(
+        val user: com.lumina.app.data.source.local.entity.UserEntity?,
+        val courses: List<com.lumina.app.data.source.local.entity.CourseEntity>,
+        val dueCount: Int,
+        val status: SyncStatus,
+        val progress: Int
+    )
+
     suspend fun syncFromCloud(userId: Long, firebaseUid: String) {
+        if (_syncState.value.first == SyncStatus.SYNCING) return
+        
         val firestoreSync = FirestoreSyncManager()
         try {
+            android.util.Log.d("HomeRepository", "Bắt đầu đồng bộ sâu...")
+            _syncState.value = SyncStatus.SYNCING to 0
             val remoteCourses = firestoreSync.fetchAllCourses(firebaseUid)
-            remoteCourses.forEach { remoteCourse ->
-                val localCourse = courseDao.getCourseById(remoteCourse.id)
-                if (localCourse == null) {
-                    courseDao.insertCourse(remoteCourse.copy(userId = userId).toEntity())
+            
+            if (remoteCourses.isEmpty()) {
+                _syncState.value = SyncStatus.COMPLETED to 100
+                return
+            }
 
-                    val remoteUnits = firestoreSync.fetchAllUnits(firebaseUid, remoteCourse.id)
-                    remoteUnits.forEach { remoteUnit ->
-                        unitDao.insertUnit(remoteUnit.toEntity())
+            remoteCourses.forEachIndexed { index, remoteCourse ->
+                if (_syncState.value.first == SyncStatus.PAUSED) return@forEachIndexed
 
-                        val remoteLessons = firestoreSync.fetchAllLessons(firebaseUid, remoteCourse.id, remoteUnit.id)
-                        remoteLessons.forEach { remoteLesson ->
-                            lessonDao.insertLesson(remoteLesson.toEntity())
-
-                            val remoteVocabs = firestoreSync.fetchAllVocabularies(
-                                firebaseUid, remoteCourse.id, remoteUnit.id, remoteLesson.id
-                            )
-                            if (remoteVocabs.isNotEmpty()) {
-                                vocabularyDao.insertVocabularyList(remoteVocabs.map { it.toEntity() })
-                            }
+                // 1. Lưu Khóa học
+                courseDao.insertCourse(remoteCourse.copy(userId = userId).toEntity())
+                
+                // 2. Tải và lưu Unit
+                val remoteUnits = firestoreSync.fetchAllUnits(firebaseUid, remoteCourse.id)
+                remoteUnits.forEach { remoteUnit ->
+                    unitDao.insertUnit(remoteUnit.toEntity())
+                    
+                    // 3. Tải và lưu Lesson
+                    val remoteLessons = firestoreSync.fetchAllLessons(firebaseUid, remoteCourse.id, remoteUnit.id)
+                    remoteLessons.forEach { remoteLesson ->
+                        lessonDao.insertLesson(remoteLesson.toEntity())
+                        
+                        // 4. Tải và lưu Từ vựng (Quan trọng nhất)
+                        val remoteVocabs = firestoreSync.fetchAllVocabularies(
+                            firebaseUid, remoteCourse.id, remoteUnit.id, remoteLesson.id
+                        )
+                        if (remoteVocabs.isNotEmpty()) {
+                            vocabularyDao.insertVocabularyList(remoteVocabs.map { it.toEntity() })
                         }
                     }
                 }
+                
+                val currentProgress = ((index + 1) * 100) / remoteCourses.size
+                _syncState.value = SyncStatus.SYNCING to currentProgress
             }
+            _syncState.value = SyncStatus.COMPLETED to 100
+            android.util.Log.d("HomeRepository", "Đồng bộ sâu hoàn tất!")
         } catch (e: Exception) {
             android.util.Log.e("HomeRepository", "Sync failed: ${e.message}")
+            _syncState.value = SyncStatus.ERROR to 0
+        }
+    }
+
+    fun pauseSync() {
+        _syncState.value = SyncStatus.PAUSED to _syncState.value.second
+    }
+
+    fun resumeSync() {
+        if (_syncState.value.first == SyncStatus.PAUSED) {
+            _syncState.value = SyncStatus.IDLE to _syncState.value.second
         }
     }
 
